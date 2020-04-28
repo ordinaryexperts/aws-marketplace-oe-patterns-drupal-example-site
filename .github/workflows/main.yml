@@ -5,11 +5,11 @@ name: AWS Patterns Ordinary Experts Patterns Drupal Example Site CI
 on:
   push:
     branches: [ master, develop ]
-    paths: [ 'feature/*' ]
+    #paths: [ 'feature/*' ]
     tags: [ '*' ]
   pull_request:
     branches: [ master, develop ]
-    paths: [ 'feature/*' ]
+    #paths: [ 'feature/*' ]
     tags: [ '*' ]
 
 jobs:
