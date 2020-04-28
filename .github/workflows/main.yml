@@ -32,4 +32,4 @@ jobs:
         sudo ./aws/install
 
     - name: Deploy archive to AWS S3 drop location
-      run: aws s3 cp aws-marketplace-oe-patterns-drupal-example-site.tar.gz s3://github-user-and-bucket-githubartifactbucket-1c9jk3sjkqv8p/aws-marketplace-oe-patterns-drupal-example-site.tar.gz
+      run: aws s3 cp $HOME/aws-marketplace-oe-patterns-drupal-example-site.tar.gz s3://github-user-and-bucket-githubartifactbucket-1c9jk3sjkqv8p/aws-marketplace-oe-patterns-drupal-example-site.tar.gz
