@@ -5,9 +5,11 @@ name: AWS Patterns Ordinary Experts Patterns Drupal Example Site CI
 on:
   push:
     branches: [ master, develop ]
+    paths: [ 'feature/*' ]
     tags: [ '*' ]
   pull_request:
     branches: [ master, develop ]
+    paths: [ 'feature/*' ]
     tags: [ '*' ]
 
 jobs:
@@ -36,6 +38,6 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.OE_PATTERNS_S3_DEV_GITHUB_AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.OE_PATTERNS_S3_DEV_GITHUB_AWS_SECRET_ACCESS_KEY }}
       run: |
-        export AWS_S3_DROP_PATH=$GITHUB_REF/aws-marketplace-oe-patterns-drupal-example-site.tar.gz
+        export AWS_S3_DROP_PATH=aws-marketplace-oe-patterns-drupal-example-site/$GITHUB_REF.tar.gz
         aws s3 cp $HOME/aws-marketplace-oe-patterns-drupal-example-site.tar.gz \
         s3://github-user-and-bucket-githubartifactbucket-1c9jk3sjkqv8p/$AWS_S3_DROP_PATH
