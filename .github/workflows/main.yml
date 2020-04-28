@@ -1,4 +1,4 @@
-# This is a basic workflow to help you get started with Actions
+# Workflow to compress drupal code and upload to AWS S3 drop location
 
 name: AWS Patterns Ordinary Experts Patterns Drupal Example Site CI
 
@@ -19,10 +19,25 @@ jobs:
     - uses: actions/checkout@v2
 
     # https://stackoverflow.com/questions/58033366/how-to-get-current-branch-within-github-actions
-    - name: Extract branch name
+    - name: Extract branch or tag name
       shell: bash
-      run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-      id: extract_branch
+      #run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+      run: |
+        GIT_BRANCH=${GITHUB_REF#refs/heads/}
+        GIT_TAG=${GITHUB_REF#refs/tags/}
+
+        if [ -z $GIT_TAG ];
+        then
+            echo "GIT_BRANCH set to $GIT_BRANCH"
+            echo "##[set-output name=git_name;]$(echo $GIT_BRANCH)"
+        elif [ -z $GIT_BRANCH ];
+        then
+            echo "GIT_TAG set to $GIT_TAG"
+            echo "##[set-output name=git_name;]$(echo releases/$GIT_TAG)"
+        fi
+
+        #echo "##[set-output name=git_name;]$(echo ${GITHUB_REF#refs/heads/})"
+      id: extract_git_name
 
     - name: Compress Drupal code archive
       run: |
@@ -42,6 +57,6 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.OE_PATTERNS_S3_DEV_GITHUB_AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.OE_PATTERNS_S3_DEV_GITHUB_AWS_SECRET_ACCESS_KEY }}
       run: |
-        export AWS_S3_DROP_PATH=${{ steps.extract_branch.outputs.branch }}/aws-marketplace-oe-patterns-drupal-example-site.tar.gz
+        export AWS_S3_DROP_PATH=${{ steps.extract_git_name.outputs.git_name }}/aws-marketplace-oe-patterns-drupal-example-site.tar.gz
         aws s3 cp $HOME/aws-marketplace-oe-patterns-drupal-example-site.tar.gz \
         s3://github-user-and-bucket-githubartifactbucket-1c9jk3sjkqv8p/$AWS_S3_DROP_PATH
