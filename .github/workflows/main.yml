@@ -39,9 +39,11 @@ jobs:
 
     - name: Deploy archive to AWS S3 drop location
       env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.OE_PATTERNS_S3_DEV_GITHUB_AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.OE_PATTERNS_S3_DEV_GITHUB_AWS_SECRET_ACCESS_KEY }}
       run: |
-        export AWS_S3_DROP_PATH=${{ steps.extract_branch.outputs.branch }}\/aws-marketplace-oe-patterns-drupal-example-site.tar.gz
+        export AWS_S3_DROP_PATH=${{ steps.extract_branch.outputs.branch }}/aws-marketplace-oe-patterns-drupal-example-site.tar.gz
         aws s3 cp $HOME/aws-marketplace-oe-patterns-drupal-example-site.tar.gz \
         s3://github-user-and-bucket-githubartifactbucket-1c9jk3sjkqv8p/$AWS_S3_DROP_PATH
+      with:
+        aws_s3_drop_path: ${{ steps.extract_branch.outputs.branch }}/aws-marketplace-oe-patterns-drupal-example-site.tar.gz
