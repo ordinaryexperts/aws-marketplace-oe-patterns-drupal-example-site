@@ -45,5 +45,3 @@ jobs:
         export AWS_S3_DROP_PATH=${{ steps.extract_branch.outputs.branch }}/aws-marketplace-oe-patterns-drupal-example-site.tar.gz
         aws s3 cp $HOME/aws-marketplace-oe-patterns-drupal-example-site.tar.gz \
         s3://github-user-and-bucket-githubartifactbucket-1c9jk3sjkqv8p/$AWS_S3_DROP_PATH
-      with:
-        aws_s3_drop_path: ${{ steps.extract_branch.outputs.branch }}/aws-marketplace-oe-patterns-drupal-example-site.tar.gz
