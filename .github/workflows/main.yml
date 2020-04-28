@@ -18,6 +18,12 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
 
+    # https://stackoverflow.com/questions/58033366/how-to-get-current-branch-within-github-actions
+    - name: Extract branch name
+      shell: bash
+      run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+      id: extract_branch
+
     - name: Compress Drupal code archive
       run: |
         tar cfz $HOME/aws-marketplace-oe-patterns-drupal-example-site.tar.gz \
@@ -32,4 +38,10 @@ jobs:
         sudo ./aws/install
 
     - name: Deploy archive to AWS S3 drop location
-      run: aws s3 cp $HOME/aws-marketplace-oe-patterns-drupal-example-site.tar.gz s3://github-user-and-bucket-githubartifactbucket-1c9jk3sjkqv8p/aws-marketplace-oe-patterns-drupal-example-site.tar.gz
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      run: |
+        export AWS_S3_DROP_PATH=${{ steps.extract_branch.outputs.branch }}\/aws-marketplace-oe-patterns-drupal-example-site.tar.gz
+        aws s3 cp $HOME/aws-marketplace-oe-patterns-drupal-example-site.tar.gz \
+        s3://github-user-and-bucket-githubartifactbucket-1c9jk3sjkqv8p/$AWS_S3_DROP_PATH
