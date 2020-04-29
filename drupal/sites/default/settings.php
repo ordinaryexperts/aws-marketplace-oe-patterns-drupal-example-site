@@ -758,6 +758,6 @@ if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
 /**
  * OE Patterns Drupal final override.
  */
-if (file_exists('/etc/oe/patterns/drupal/settings.php')) {
-  include '/etc/oe/patterns/drupal/settings.php';
+if (file_exists('/opt/drupal/settings.php')) {
+  include '/opt/drupal/settings.php';
 }
