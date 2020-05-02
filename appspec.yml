@@ -2,7 +2,7 @@ version: 0.0
 os: linux
 files:
   - source: .
-    destination: /var/www/drupal
+    destination: /tmp/app
 hooks:
   AfterInstall:
     - location: post-deploy.sh
