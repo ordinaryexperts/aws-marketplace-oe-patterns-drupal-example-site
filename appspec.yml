@@ -3,6 +3,6 @@ os: linux
 files:
   - source: .
     destination: /tmp
-hooks:
-  AfterInstall:
-    - location: post-deploy.sh
+# hooks:
+#   AfterInstall:
+#     - location: post-deploy.sh
