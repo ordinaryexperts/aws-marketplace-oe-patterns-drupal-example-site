@@ -21,8 +21,9 @@ jobs:
     - name: Compress Drupal code archive
       run: |
         tar cfz $HOME/aws-marketplace-oe-patterns-drupal-example-site.tar.gz \
-        --exclude="sites/default/settings.local.php" \
-        drupal
+        --exclude="drupal/sites/default/settings.local.php" \
+        --exclude=".git" \
+        .
       working-directory: ${{ github.workspace }}
 
     - name: Install aws-cli
