@@ -6,9 +6,9 @@ cd /var/www/drupal
 # https://www.drupal.org/forum/support/post-installation/2016-09-22/file-and-directory-permissions-lets-finally-get-this
 find /var/www/drupal -type d -exec chmod 755 {} +
 find /var/www/drupal -type f -exec chmod 644 {} +
-chmod /var/www/drupal/.htaccess 444
-chmod /var/www/drupal/sites/default 555
-chmod /var/www/drupal/sites/default/settings.php 400
+chmod 444 /var/www/drupal/.htaccess
+chmod 555 /var/www/drupal/sites/default
+chmod 400 /var/www/drupal/sites/default/settings.php
 find /var/www/drupal/sites/default/files -type d -exec chmod 755 {} +
 find /var/www/drupal/sites/default/files -type f -exec chmod 664 {} +
 
