@@ -10,17 +10,21 @@ files:
 permissions:
   - object: /var/www/drupal
     except: [ /var/www/drupal/sites/default ]
+    pattern: "**"
     mode: 755
     type:
       - directory
-  # - object: /var/www/drupal
-  #   except: [ /var/www/drupal/.htaccess ]
-  #   mode: 644
-  #   type:
-  #     - file
+  - object: /var/www/drupal
+    pattern: "**"
+    except: [ /var/www/drupal/.htaccess ]
+    mode: 644
+    type:
+      - file
   - object: /var/www/drupal/.htaccess
+    pattern: "**"
     mode: 444
   - object: /var/www/drupal/sites/default
+    pattern: "**"
     except: [ /var/www/drupal/sites/default/settings.php /var/www/drupal/sites/default/files ]
     mode: 555
   - object: /var/www/drupal/sites/default/settings.php
