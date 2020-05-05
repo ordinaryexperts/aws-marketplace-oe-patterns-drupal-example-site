@@ -13,10 +13,10 @@ permissions:
     type:
       - directory
   - object: /var/www/drupal
-    except: '/var/www/drupal/.htaccess'
+    except: [ /var/www/drupal/.htaccess ]
     mode: 644
       - file
-  - object: '/var/www/drupal/.htaccess'
+  - object: /var/www/drupal/.htaccess
     mode: 444
   - object: /var/www/drupal/sites/default
     except: /var/www/drupal/sites/default/settings.php
