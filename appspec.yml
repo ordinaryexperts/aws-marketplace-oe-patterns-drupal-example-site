@@ -41,4 +41,4 @@ permissions:
 
 hooks:
   AfterInstall:
-    - location: /opt/oe/patterns/drupal/scripts/codedeploy-after-install.sh
+    - location: scripts/codedeploy-after-install.sh
