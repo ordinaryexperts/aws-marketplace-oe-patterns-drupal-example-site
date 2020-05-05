@@ -7,32 +7,32 @@ files:
     destination: /opt/oe/patterns/drupal/scripts
 
 # https://www.drupal.org/forum/support/post-installation/2016-09-22/file-and-directory-permissions-lets-finally-get-this
-permissions:
-  - object: /var/www/drupal
-    except: [ "/var/www/drupal/sites/default" ]
-    mode: 755
-    type:
-      - directory
-  - object: /var/www/drupal
-    except: [ "/var/www/drupal/.htaccess" ]
-    mode: 644
-    type:
-      - file
-#  - object: "/var/www/drupal/.htaccess"
-#    mode: 444
-  - object: /var/www/drupal/sites/default
-    except: [ "/var/www/drupal/sites/default/settings.php", "/var/www/drupal/sites/default/files" ]
-    mode: 555
-  - object: /var/www/drupal/sites/default/settings.php
-    mode: 400
-  - object: /var/www/drupal/sites/default/files
-    mode: 755
-    type:
-      - directory
-  - object: /var/www/drupal/sites/default/files
-    mode: 664
-    type:
-      - file
+# permissions:
+#   - object: /var/www/drupal
+#     except: [ "/var/www/drupal/sites/default" ]
+#     mode: 755
+#     type:
+#       - directory
+#   - object: /var/www/drupal
+#     except: [ "/var/www/drupal/.htaccess" ]
+#     mode: 644
+#     type:
+#       - file
+#   - object: "/var/www/drupal/.htaccess"
+#     mode: 444
+#   - object: /var/www/drupal/sites/default
+#     except: [ "/var/www/drupal/sites/default/settings.php", "/var/www/drupal/sites/default/files" ]
+#     mode: 555
+#   - object: /var/www/drupal/sites/default/settings.php
+#     mode: 400
+#   - object: /var/www/drupal/sites/default/files
+#     mode: 755
+#     type:
+#       - directory
+#   - object: /var/www/drupal/sites/default/files
+#     mode: 664
+#     type:
+#       - file
 
 hooks:
   AfterInstall:
