@@ -15,7 +15,6 @@ permissions:
   - object: /var/www/drupal
     except: [ /var/www/drupal/.htaccess ]
     mode: 644
-      - file
   - object: /var/www/drupal/.htaccess
     mode: 444
   - object: /var/www/drupal/sites/default
