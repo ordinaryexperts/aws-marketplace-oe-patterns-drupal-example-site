@@ -9,23 +9,23 @@ files:
 # https://www.drupal.org/forum/support/post-installation/2016-09-22/file-and-directory-permissions-lets-finally-get-this
 permissions:
   - object: /var/www/drupal
-    except: [ /var/www/drupal/sites/default ]
+    except: [ "/var/www/drupal/sites/default" ]
     pattern: "**"
     mode: 755
     type:
       - directory
   - object: /var/www/drupal
     pattern: "**"
-    except: [ /var/www/drupal/.htaccess ]
+    except: [ "/var/www/drupal/.htaccess" ]
     mode: 644
     type:
       - file
-  - object: /var/www/drupal/.htaccess
+  - object: "/var/www/drupal/.htaccess"
     pattern: "**"
     mode: 444
   - object: /var/www/drupal/sites/default
     pattern: "**"
-    except: [ /var/www/drupal/sites/default/settings.php /var/www/drupal/sites/default/files ]
+    except: [ "/var/www/drupal/sites/default/settings.php", "/var/www/drupal/sites/default/files" ]
     mode: 555
   - object: /var/www/drupal/sites/default/settings.php
     mode: 400
