@@ -6,6 +6,11 @@ files:
   - source: scripts
     destination: /opt/oe/patterns/drupal/scripts
 
+permissions:
+  - object: /opt/oe/patterns/drupal/scripts
+    mode: 755
+    type:
+      - file
 # https://www.drupal.org/forum/support/post-installation/2016-09-22/file-and-directory-permissions-lets-finally-get-this
 # permissions:
 #   - object: /var/www/drupal
