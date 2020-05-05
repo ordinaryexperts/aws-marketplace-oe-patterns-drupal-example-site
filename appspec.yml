@@ -18,7 +18,7 @@ permissions:
   - object: /var/www/drupal/.htaccess
     mode: 444
   - object: /var/www/drupal/sites/default
-    except: /var/www/drupal/sites/default/settings.php
+    except: [ /var/www/drupal/sites/default/settings.php ]
     mode: 555
   - object: /var/www/drupal/sites/default/settings.php
     mode: 400
