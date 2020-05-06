@@ -2,6 +2,7 @@
 
 # permissions
 # https://www.drupal.org/forum/support/post-installation/2016-09-22/file-and-directory-permissions-lets-finally-get-this
+mkdir -p /var/www/drupal/sites/default/files
 chown -R www-data /var/www/drupal
 find /var/www/drupal -type d -exec chmod 755 {} +
 find /var/www/drupal -type f -exec chmod 644 {} +
