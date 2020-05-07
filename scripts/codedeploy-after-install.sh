@@ -3,7 +3,6 @@
 # permissions
 # https://www.drupal.org/forum/support/post-installation/2016-09-22/file-and-directory-permissions-lets-finally-get-this
 mkdir -p /var/www/drupal/sites/default/files
-chown -R www-data /var/www/drupal
 find /var/www/drupal -type d -exec chmod 755 {} +
 find /var/www/drupal -type f -exec chmod 644 {} +
 chmod 444 /var/www/drupal/.htaccess
@@ -12,6 +11,7 @@ chmod 400 /var/www/drupal/sites/default/settings.php
 chmod 755 /var/www/drupal/vendor/drush/drush/drush
 find /var/www/drupal/sites/default/files -type d -exec chmod 755 {} +
 find /var/www/drupal/sites/default/files -type f -exec chmod 664 {} +
+chown -R www-data /var/www/drupal
 
 echo $USER
 
