@@ -1,3 +1,4 @@
 #!/bin/bash
 
-rm -rf /var/www/drupal/sites/default/files
+# remove efs symlink - codedeploy will fail with leftover files
+rm /var/www/drupal/sites/default/files
