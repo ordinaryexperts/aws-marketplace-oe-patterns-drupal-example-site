@@ -5,7 +5,7 @@ files:
     destination: /var/www/drupal
 
 hooks:
-  ApplicationStop:
+  BeforeInstall:
     - location: scripts/codedeploy-application-stop.sh
   AfterInstall:
     - location: scripts/codedeploy-after-install.sh
