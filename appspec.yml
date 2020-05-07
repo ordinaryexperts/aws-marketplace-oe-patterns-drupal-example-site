@@ -6,6 +6,8 @@ files:
 
 hooks:
   BeforeInstall:
-    - location: scripts/codedeploy-application-stop.sh
+    - location: scripts/codedeploy-before-install.sh
+      runas: root
   AfterInstall:
     - location: scripts/codedeploy-after-install.sh
+      runas: root
