@@ -13,7 +13,8 @@ find /var/www/drupal/sites/default/files -type d -exec chmod 755 {} +
 find /var/www/drupal/sites/default/files -type f -exec chmod 664 {} +
 chown -R www-data /var/www/drupal
 
-echo $USER
+source /etc/profile.d/oe-patterns-drupal.sh
+env > /tmp/env.txt
 
 # TODO: does each application server *always* need to rebuild the cache? CodePipeline custom action?
 export HOME=/var/www/drupal
