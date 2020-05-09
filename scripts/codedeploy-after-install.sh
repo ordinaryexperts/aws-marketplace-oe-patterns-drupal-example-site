@@ -1,8 +1,6 @@
 #!/bin/bash
 
 # symlink to efs files directory
-mkdir -p /mnt/efs/drupal/files
-chown www-data /mnt/efs/drupal/files
 ln -s /mnt/efs/drupal/files /var/www/drupal/sites/default/files
 
 # permissions
