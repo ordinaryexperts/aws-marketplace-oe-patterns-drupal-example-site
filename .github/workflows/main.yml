@@ -22,6 +22,7 @@ jobs:
       run: |
         tar cfz $HOME/aws-marketplace-oe-patterns-drupal-example-site.tar.gz \
         --exclude="drupal/sites/default/settings.local.php" \
+        --exclude=".git" \
         .
       working-directory: ${{ github.workspace }}
 
