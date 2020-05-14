@@ -1,5 +1,13 @@
 version: 0.0
 os: linux
 files:
-  - source: .
-    destination: /tmp
+  - source: drupal
+    destination: /var/www/drupal
+
+hooks:
+  BeforeInstall:
+    - location: scripts/codedeploy-before-install.sh
+      runas: root
+  AfterInstall:
+    - location: scripts/codedeploy-after-install.sh
+      runas: root
