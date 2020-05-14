@@ -766,7 +766,7 @@ if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
  */
 if (file_exists('/opt/oe/patterns/drupal/ssm-parameters.json')) {
   $parameters = json_decode(file_get_contents('/opt/oe/patterns/drupal/ssm-parameters.json'), TRUE);
-  $databases['default']['default']['database'] = $parameters['database-name'];
+  $databases['default']['default']['database'] = $parameters['database-name']['Value'];
   $settings['config_sync_directory'] = $parameters['config-sync-directory']['Value'];
   $settings['hash_salt'] = $parameters['hash-salt']['Value'];
 }
