@@ -752,6 +752,7 @@ $settings['entity_update_backup'] = TRUE;
  */
 
 $databases['default']['default'] = [
+  'database' => 'drupal',
   'driver' => 'mysql',
   'prefix' => '',
   'collation' => 'utf8mb4_general_ci',
@@ -761,15 +762,12 @@ if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
   include $app_root . '/' . $site_path . '/settings.local.php';
 }
 
+
 /**
  * OE Patterns Drupal final override.
  */
-if (file_exists('/opt/oe/patterns/drupal/ssm-parameters.json')) {
-  $parameters = json_decode(file_get_contents('/opt/oe/patterns/drupal/ssm-parameters.json'), TRUE);
-  $databases['default']['default']['database'] = $parameters['database-name']['Value'];
-  $settings['config_sync_directory'] = $parameters['config-sync-directory']['Value'];
-  $settings['hash_salt'] = $parameters['hash-salt']['Value'];
-}
+$settings['config_sync_directory'] = '../config/sync';
+$settings['hash_salt'] = file_get_contents('/opt/oe/patterns/drupal/salt.txt');
 
 if (file_exists('/opt/oe/patterns/drupal/secret.json')) {
   $secret = json_decode(file_get_contents('/opt/oe/patterns/drupal/secret.json'), TRUE);
