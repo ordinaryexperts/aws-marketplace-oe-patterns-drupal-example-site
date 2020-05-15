@@ -751,13 +751,30 @@ $settings['entity_update_backup'] = TRUE;
  * Keep this code block at the end of this file to take full effect.
  */
 
-if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
-  include $app_root . '/' . $site_path . '/settings.local.php';
-}
+$databases['default']['default'] = [
+  'database' => 'drupal',
+  'driver' => 'mysql',
+  'prefix' => '',
+  'collation' => 'utf8mb4_general_ci',
+];
 
 /**
  * OE Patterns Drupal final override.
  */
-if (file_exists('/opt/oe/patterns/drupal/settings.php')) {
-  include '/opt/oe/patterns/drupal/settings.php';
+$settings['config_sync_directory'] = '../config/sync';
+$settings['hash_salt'] = file_get_contents('/opt/oe/patterns/drupal/salt.txt');
+
+if (file_exists('/opt/oe/patterns/drupal/secret.json')) {
+  $secret = json_decode(file_get_contents('/opt/oe/patterns/drupal/secret.json'), TRUE);
+  $databases['default']['default']['username'] = $secret['username'];
+  $databases['default']['default']['password'] = $secret['password'];
+}
+if (file_exists('/opt/oe/patterns/drupal/db.json')) {
+  $db = json_decode(file_get_contents('/opt/oe/patterns/drupal/db.json'), TRUE);
+  $databases['default']['default']['host'] = $db['host'];
+  $databases['default']['default']['port'] = $db['port'];
+}
+
+if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
+  include $app_root . '/' . $site_path . '/settings.local.php';
 }
