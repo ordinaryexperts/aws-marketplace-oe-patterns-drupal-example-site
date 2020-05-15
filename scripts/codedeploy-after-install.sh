@@ -16,5 +16,6 @@ find /var/www/app/drupal/sites/default/files -type f -exec chmod 664 {} +
 chown -R www-data /var/www/app/drupal
 
 # TODO: does each application server *always* need to rebuild the cache? CodePipeline custom action?
-export HOME=/var/www/app/drupal
+cd /var/www/app/drupal
+composer require drush/drush
 /var/www/app/drupal/vendor/bin/drush cache:rebuild
