@@ -1,8 +1,8 @@
 version: 0.0
 os: linux
 files:
-  - source: drupal
-    destination: /var/www/drupal
+  - source: .
+    destination: /var/www/app/drupal
 
 hooks:
   BeforeInstall:
