@@ -758,11 +758,6 @@ $databases['default']['default'] = [
   'collation' => 'utf8mb4_general_ci',
 ];
 
-if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
-  include $app_root . '/' . $site_path . '/settings.local.php';
-}
-
-
 /**
  * OE Patterns Drupal final override.
  */
@@ -775,7 +770,11 @@ if (file_exists('/opt/oe/patterns/drupal/secret.json')) {
   $databases['default']['default']['password'] = $secret['password'];
 }
 if (file_exists('/opt/oe/patterns/drupal/db.json')) {
-  $secret = json_decode(file_get_contents('/opt/oe/patterns/drupal/db.json'), TRUE);
+  $db = json_decode(file_get_contents('/opt/oe/patterns/drupal/db.json'), TRUE);
   $databases['default']['default']['host'] = $db['host'];
   $databases['default']['default']['port'] = $db['port'];
+}
+
+if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
+  include $app_root . '/' . $site_path . '/settings.local.php';
 }
