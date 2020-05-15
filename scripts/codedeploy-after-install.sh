@@ -18,4 +18,8 @@ chown -R www-data /var/www/app/drupal
 # TODO: does each application server *always* need to rebuild the cache? CodePipeline custom action?
 cd /var/www/app/drupal
 composer require drush/drush
-/var/www/app/drupal/vendor/bin/drush cache:rebuild
+connected=$(/var/www/app/drupal/vendor/bin/drush sql:connect)
+if [[ connected == 0 ]]
+then
+    /var/www/app/drupal/vendor/bin/drush cache:rebuild
+fi
