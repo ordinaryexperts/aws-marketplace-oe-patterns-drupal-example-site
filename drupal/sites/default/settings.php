@@ -773,6 +773,9 @@ if (file_exists('/opt/oe/patterns/drupal/secret.json')) {
   $secret = json_decode(file_get_contents('/opt/oe/patterns/drupal/secret.json'), TRUE);
   $databases['default']['default']['username'] = $secret['username'];
   $databases['default']['default']['password'] = $secret['password'];
-  $databases['default']['default']['host'] = $secret['host'];
-  $databases['default']['default']['port'] = $secret['port'];
+}
+if (file_exists('/opt/oe/patterns/drupal/db.json')) {
+  $secret = json_decode(file_get_contents('/opt/oe/patterns/drupal/db.json'), TRUE);
+  $databases['default']['default']['host'] = $db['host'];
+  $databases['default']['default']['port'] = $db['port'];
 }
