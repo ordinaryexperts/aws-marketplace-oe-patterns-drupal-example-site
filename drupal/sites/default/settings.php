@@ -777,14 +777,14 @@ if (file_exists('/opt/oe/patterns/drupal/db.json')) {
 }
 
 // elasticache
-if (!MAINTENANCE_MODE && file_exists('/opt/oe/patterns/drupal/elasticache.json')) {
+if (!defined(MAINTENANCE_MODE) && file_exists('/opt/oe/patterns/drupal/elasticache.json')) {
   $elasticache = json_decode(file_get_contents('/opt/oe/patterns/drupal/elasticache.json'), TRUE);
   $settings['memcache']['servers'] = [ $elasticache['host'] .':'. $elasticache['port'] => 'default' ];
   $settings['cache']['default'] = 'cache.backend.memcache';
 }
 
 // cloudfront
-if (!MAINTENANCE_MODE && file_exists('/opt/oe/patterns/drupal/elasticache.json')) {
+if (!defined(MAINTENANCE_MODE) && file_exists('/opt/oe/patterns/drupal/elasticache.json')) {
   $cloudfront = json_decode(file_get_contents('/opt/oe/patterns/drupal/cloudfront.json'), TRUE);
   $config['cdn.settings']['mapping']['domain'] = $cloudfront['host'];
   $config['cdn.settings']['status'] = TRUE;
