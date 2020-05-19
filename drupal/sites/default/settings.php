@@ -777,7 +777,7 @@ if (file_exists('/opt/oe/patterns/drupal/db.json')) {
 }
 
 // elasticache
-if (file_exists('/opt/oe/patterns/drupal/elasticache.json')) {
+if (!MAINTENANCE_MODE && file_exists('/opt/oe/patterns/drupal/elasticache.json')) {
   $elasticache = json_decode(file_get_contents('/opt/oe/patterns/drupal/elasticache.json'), TRUE);
   $settings['memcache']['servers'] = [ $elasticache['host'] .':'. $elasticache['port'] => 'default' ];
   $settings['cache']['default'] = 'cache.backend.memcache';
