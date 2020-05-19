@@ -764,6 +764,7 @@ $databases['default']['default'] = [
 $settings['config_sync_directory'] = '../config/sync';
 $settings['hash_salt'] = file_get_contents('/opt/oe/patterns/drupal/salt.txt');
 
+// database
 if (file_exists('/opt/oe/patterns/drupal/secret.json')) {
   $secret = json_decode(file_get_contents('/opt/oe/patterns/drupal/secret.json'), TRUE);
   $databases['default']['default']['username'] = $secret['username'];
@@ -773,6 +774,20 @@ if (file_exists('/opt/oe/patterns/drupal/db.json')) {
   $db = json_decode(file_get_contents('/opt/oe/patterns/drupal/db.json'), TRUE);
   $databases['default']['default']['host'] = $db['host'];
   $databases['default']['default']['port'] = $db['port'];
+}
+
+// elasticache
+if (file_exists('/opt/oe/patterns/drupal/elasticache.json')) {
+  $elasticache = json_decode(file_get_contents('/opt/oe/patterns/drupal/elasticache.json'), TRUE);
+  $settings['memcache']['servers'] = [ $elasticache['host'] .':'. $elasticache['port'] => 'default' ];
+  $settings['cache']['default'] = 'cache.backend.memcache';
+}
+
+// cloudfront
+if (file_exists('/opt/oe/patterns/drupal/elasticache.json')) {
+  $cloudfront = json_decode(file_get_contents('/opt/oe/patterns/drupal/cloudfront.json'), TRUE);
+  $config['cdn.settings']['mapping']['domain'] = $cloudfront['host'];
+  $config['cdn.settings']['status'] = TRUE;
 }
 
 if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
