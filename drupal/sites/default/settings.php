@@ -784,7 +784,7 @@ if (file_exists('/opt/oe/patterns/drupal/elasticache.json')) {
 }
 
 // cloudfront
-if (file_exists('/opt/oe/patterns/drupal/elasticache.json')) {
+if (!MAINTENANCE_MODE && file_exists('/opt/oe/patterns/drupal/elasticache.json')) {
   $cloudfront = json_decode(file_get_contents('/opt/oe/patterns/drupal/cloudfront.json'), TRUE);
   $config['cdn.settings']['mapping']['domain'] = $cloudfront['host'];
   $config['cdn.settings']['status'] = TRUE;
