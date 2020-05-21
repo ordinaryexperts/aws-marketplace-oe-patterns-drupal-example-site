@@ -35,6 +35,7 @@ jobs:
     - name: Deploy archive to AWS S3 drop location
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.OE_PATTERNS_S3_DEV_GITHUB_AWS_ACCESS_KEY_ID }}
+        AWS_DEFAULT_REGION: us-east-1
         AWS_SECRET_ACCESS_KEY: ${{ secrets.OE_PATTERNS_S3_DEV_GITHUB_AWS_SECRET_ACCESS_KEY }}
       run: |
         export AWS_S3_DROP_PATH=aws-marketplace-oe-patterns-drupal-example-site/$GITHUB_REF.tar.gz
