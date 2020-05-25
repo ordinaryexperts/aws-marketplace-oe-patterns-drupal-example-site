@@ -24,7 +24,7 @@ jobs:
         --exclude="drupal/sites/default/settings.local.php" \
         --exclude=".git" \
         .
-        zip --symlinks -r $HOME/aws-marketplace-oe-patterns-drupal-example-site.zip . -x '*.git*'
+        zip -y -r $HOME/aws-marketplace-oe-patterns-drupal-example-site.zip . -x '*.git*'
       working-directory: ${{ github.workspace }}
 
     - name: Install aws-cli
