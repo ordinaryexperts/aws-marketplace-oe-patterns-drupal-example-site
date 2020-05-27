@@ -756,6 +756,9 @@ $databases['default']['default'] = [
   'driver' => 'mysql',
   'prefix' => '',
   'collation' => 'utf8mb4_general_ci',
+  'pdo' => [
+    \PDO::MYSQL_ATTR_SSL_CA => '/opt/aws/rds/AmazonRootCA1.pem',
+  ]
 ];
 
 /**
