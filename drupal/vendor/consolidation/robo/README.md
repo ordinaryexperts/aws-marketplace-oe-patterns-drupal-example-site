@@ -6,7 +6,6 @@
 [![Latest Stable Version](https://poser.pugx.org/consolidation/robo/v/stable.png)](https://packagist.org/packages/consolidation/robo) 
 [![Latest Unstable Version](https://poser.pugx.org/consolidation/robo/v/unstable.png)](https://packagist.org/packages/consolidation/robo) 
 [![Total Downloads](https://poser.pugx.org/consolidation/robo/downloads.png)](https://packagist.org/packages/consolidation/robo) 
-[![PHP 5 supported](https://img.shields.io/badge/PHP%205-supported-92a9ed)](https://travis-ci.org/consolidation/Robo)
 
 [![Build Status](https://travis-ci.org/consolidation/Robo.svg?branch=master)](https://travis-ci.org/consolidation/Robo) 
 [![Windows CI](https://ci.appveyor.com/api/projects/status/0823hnh06pw8ir4d?svg=true)](https://ci.appveyor.com/project/greg-1-anderson/robo)

@@ -105,6 +105,16 @@ $databases = [];
  * webserver.  For most other drivers, you must specify a
  * username, password, host, and database name.
  *
+ * Drupal core implements drivers for mysql, pgsql, and sqlite. Other drivers
+ * can be provided by contributed or custom modules. To use a contributed or
+ * custom driver, the "namespace" property must be set to the namespace of the
+ * driver. The code in this namespace must be autoloadable prior to connecting
+ * to the database, and therefore, prior to when module root namespaces are
+ * added to the autoloader. To add the driver's namespace to the autoloader,
+ * set the "autoload" property to the PSR-4 base directory of the driver's
+ * namespace. This is optional for projects managed with Composer if the
+ * driver's namespace is in Composer's autoloader.
+ *
  * Transaction support is enabled by default for all drivers that support it,
  * including MySQL. To explicitly disable it, set the 'transactions' key to
  * FALSE.
@@ -222,6 +232,20 @@ $databases = [];
  *   $databases['default']['default'] = [
  *     'driver' => 'sqlite',
  *     'database' => '/path/to/databasefilename',
+ *   ];
+ * @endcode
+ *
+ * Sample Database configuration format for a driver in a contributed module:
+ * @code
+ *   $databases['default']['default'] = [
+ *     'driver' => 'mydriver',
+ *     'namespace' => 'Drupal\mymodule\Driver\Database\mydriver',
+ *     'autoload' => 'modules/mymodule/src/Driver/Database/mydriver/',
+ *     'database' => 'databasename',
+ *     'username' => 'sqlusername',
+ *     'password' => 'sqlpassword',
+ *     'host' => 'localhost',
+ *     'prefix' => '',
  *   ];
  * @endcode
  */
@@ -424,34 +448,12 @@ $settings['update_free_access'] = FALSE;
 /**
  * Class Loader.
  *
- * If the APC extension is detected, the Symfony APC class loader is used for
- * performance reasons. Detection can be prevented by setting
- * class_loader_auto_detect to false, as in the example below.
+ * If the APCu extension is detected, the classloader will be optimized to use
+ * it. Set to FALSE to disable this.
+ *
+ * @see https://getcomposer.org/doc/articles/autoloader-optimization.md
  */
 # $settings['class_loader_auto_detect'] = FALSE;
-
-/*
- * If the APC extension is not detected, either because APC is missing or
- * because auto-detection has been disabled, auto-loading falls back to
- * Composer's ClassLoader, which is good for development as it does not break
- * when code is moved in the file system. You can also decorate the base class
- * loader with another cached solution than the Symfony APC class loader, as
- * all production sites should have a cached class loader of some sort enabled.
- *
- * To do so, you may decorate and replace the local $class_loader variable. For
- * example, to use Symfony's APC class loader without automatic detection,
- * uncomment the code below.
- */
-/*
-if ($settings['hash_salt']) {
-  $prefix = 'drupal.' . hash('sha256', 'drupal.' . $settings['hash_salt']);
-  $apc_loader = new \Symfony\Component\ClassLoader\ApcClassLoader($prefix, $class_loader);
-  unset($prefix);
-  $class_loader->unregister();
-  $apc_loader->register();
-  $class_loader = $apc_loader;
-}
-*/
 
 /**
  * Authorized file system operations:
@@ -742,6 +744,19 @@ $settings['entity_update_batch_size'] = 50;
 $settings['entity_update_backup'] = TRUE;
 
 /**
+ * Node migration type.
+ *
+ * This is used to force the migration system to use the classic node migrations
+ * instead of the default complete node migrations. The migration system will
+ * use the classic node migration only if there are existing migrate_map tables
+ * for the classic node migrations and they contain data. These tables may not
+ * exist if you are developing custom migrations and do not want to use the
+ * complete node migrations. Set this to TRUE to force the use of the classic
+ * node migrations.
+ */
+$settings['migrate_node_migrate_type_classic'] = FALSE;
+
+/**
  * Load local development override configuration, if available.
  *
  * Use settings.local.php to override variables on secondary (staging,
@@ -751,7 +766,49 @@ $settings['entity_update_backup'] = TRUE;
  *
  * Keep this code block at the end of this file to take full effect.
  */
-#
-# if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
-#   include $app_root . '/' . $site_path . '/settings.local.php';
-# }
+
+$databases['default']['default'] = [
+  'database' => 'drupal',
+  'driver' => 'mysql',
+  'prefix' => '',
+  'collation' => 'utf8mb4_general_ci',
+  'pdo' => [
+    \PDO::MYSQL_ATTR_SSL_CA => '/opt/aws/rds/AmazonRootCA1.pem',
+  ]
+];
+
+/**
+ * OE Patterns Drupal final override.
+ */
+$settings['config_sync_directory'] = '../config/sync';
+$settings['hash_salt'] = file_get_contents('/opt/oe/patterns/drupal/salt.txt');
+
+// database
+if (file_exists('/opt/oe/patterns/drupal/secret.json')) {
+  $secret = json_decode(file_get_contents('/opt/oe/patterns/drupal/secret.json'), TRUE);
+  $databases['default']['default']['username'] = $secret['username'];
+  $databases['default']['default']['password'] = $secret['password'];
+}
+if (file_exists('/opt/oe/patterns/drupal/db.json')) {
+  $db = json_decode(file_get_contents('/opt/oe/patterns/drupal/db.json'), TRUE);
+  $databases['default']['default']['host'] = $db['host'];
+  $databases['default']['default']['port'] = $db['port'];
+}
+
+// elasticache
+if (!defined(MAINTENANCE_MODE) && file_exists('/opt/oe/patterns/drupal/elasticache.json')) {
+  $elasticache = json_decode(file_get_contents('/opt/oe/patterns/drupal/elasticache.json'), TRUE);
+  $settings['memcache']['servers'] = [ $elasticache['host'] .':'. $elasticache['port'] => 'default' ];
+  $settings['cache']['default'] = 'cache.backend.memcache';
+}
+
+// cloudfront
+if (!defined(MAINTENANCE_MODE) && file_exists('/opt/oe/patterns/drupal/elasticache.json')) {
+  $cloudfront = json_decode(file_get_contents('/opt/oe/patterns/drupal/cloudfront.json'), TRUE);
+  $config['cdn.settings']['mapping']['domain'] = $cloudfront['host'];
+  $config['cdn.settings']['status'] = TRUE;
+}
+
+if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
+  include $app_root . '/' . $site_path . '/settings.local.php';
+}

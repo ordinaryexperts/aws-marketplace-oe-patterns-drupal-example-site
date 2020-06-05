@@ -15,13 +15,13 @@
         }
     ],
     "require": {
-        "composer/installers": "^1.2",
+        "composer/installers": "^1.9",
         "drupal/cdn": "^3.5",
-        "drupal/core-composer-scaffold": "^8.8",
-        "drupal/core-project-message": "^8.8",
-        "drupal/core-recommended": "^8.8",
-        "drupal/core-vendor-hardening": "^8.8",
-        "drupal/memcache": "^2.0",
+        "drupal/core-composer-scaffold": "^9",
+        "drupal/core-project-message": "^9",
+        "drupal/core-recommended": "^9",
+        "drupal/core-vendor-hardening": "^9",
+        "drupal/memcache": "^2.1",
         "drush/drush": "^10.2"
     },
     "conflict": {
