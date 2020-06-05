@@ -766,49 +766,7 @@ $settings['migrate_node_migrate_type_classic'] = FALSE;
  *
  * Keep this code block at the end of this file to take full effect.
  */
-
-$databases['default']['default'] = [
-  'database' => 'drupal',
-  'driver' => 'mysql',
-  'prefix' => '',
-  'collation' => 'utf8mb4_general_ci',
-  'pdo' => [
-    \PDO::MYSQL_ATTR_SSL_CA => '/opt/aws/rds/AmazonRootCA1.pem',
-  ]
-];
-
-/**
- * OE Patterns Drupal final override.
- */
-$settings['config_sync_directory'] = '../config/sync';
-$settings['hash_salt'] = file_get_contents('/opt/oe/patterns/drupal/salt.txt');
-
-// database
-if (file_exists('/opt/oe/patterns/drupal/secret.json')) {
-  $secret = json_decode(file_get_contents('/opt/oe/patterns/drupal/secret.json'), TRUE);
-  $databases['default']['default']['username'] = $secret['username'];
-  $databases['default']['default']['password'] = $secret['password'];
-}
-if (file_exists('/opt/oe/patterns/drupal/db.json')) {
-  $db = json_decode(file_get_contents('/opt/oe/patterns/drupal/db.json'), TRUE);
-  $databases['default']['default']['host'] = $db['host'];
-  $databases['default']['default']['port'] = $db['port'];
-}
-
-// elasticache
-if (!defined(MAINTENANCE_MODE) && file_exists('/opt/oe/patterns/drupal/elasticache.json')) {
-  $elasticache = json_decode(file_get_contents('/opt/oe/patterns/drupal/elasticache.json'), TRUE);
-  $settings['memcache']['servers'] = [ $elasticache['host'] .':'. $elasticache['port'] => 'default' ];
-  $settings['cache']['default'] = 'cache.backend.memcache';
-}
-
-// cloudfront
-if (!defined(MAINTENANCE_MODE) && file_exists('/opt/oe/patterns/drupal/elasticache.json')) {
-  $cloudfront = json_decode(file_get_contents('/opt/oe/patterns/drupal/cloudfront.json'), TRUE);
-  $config['cdn.settings']['mapping']['domain'] = $cloudfront['host'];
-  $config['cdn.settings']['status'] = TRUE;
-}
-
-if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
-  include $app_root . '/' . $site_path . '/settings.local.php';
-}
+#
+# if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
+#   include $app_root . '/' . $site_path . '/settings.local.php';
+# }
