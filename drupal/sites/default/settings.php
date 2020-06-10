@@ -773,7 +773,7 @@ $databases['default']['default'] = [
   'prefix' => '',
   'collation' => 'utf8mb4_general_ci',
   'pdo' => [
-    \PDO::MYSQL_ATTR_SSL_CA => '/opt/aws/rds/AmazonRootCA1.pem',
+    \PDO::MYSQL_ATTR_SSL_CA => '/opt/aws/rds/rds-ca-2019-root.pem',
   ]
 ];
 
