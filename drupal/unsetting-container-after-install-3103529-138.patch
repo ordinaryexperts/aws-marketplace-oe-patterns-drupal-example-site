@@ -1,0 +1,12 @@
+diff --git a/core/includes/install.core.inc b/core/includes/install.core.inc
+index 9316b6fdce..787ae41207 100644
+--- a/core/includes/install.core.inc
++++ b/core/includes/install.core.inc
+@@ -165,6 +165,7 @@ function install_drupal($class_loader, $settings = [], callable $callback = NULL
+       if (isset($install_state['profile_info']['distribution']['install']['finish_url'])) {
+         $finish_url = $install_state['profile_info']['distribution']['install']['finish_url'];
+       }
++      \Drupal::unsetContainer();
+       install_goto($finish_url);
+     }
+   }
