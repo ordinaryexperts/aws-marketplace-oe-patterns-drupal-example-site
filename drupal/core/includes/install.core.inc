@@ -165,6 +165,7 @@ function install_drupal($class_loader, $settings = [], callable $callback = NULL
       if (isset($install_state['profile_info']['distribution']['install']['finish_url'])) {
         $finish_url = $install_state['profile_info']['distribution']['install']['finish_url'];
       }
+      drupal_flush_all_caches();
       install_goto($finish_url);
     }
   }
