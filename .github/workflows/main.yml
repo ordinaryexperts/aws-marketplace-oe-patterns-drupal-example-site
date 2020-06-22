@@ -40,11 +40,11 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.OE_PATTERNS_S3_DEV_GITHUB_AWS_SECRET_ACCESS_KEY }}
       run: |
         export AWS_S3_DROP_PATH=aws-marketplace-oe-patterns-drupal-example-site/$GITHUB_REF.tar.gz
-        aws s3 --debug cp $HOME/aws-marketplace-oe-patterns-drupal-example-site.tar.gz \
-        s3://github-user-and-bucket-githubartifactbucket-wl52dae3lyub/$AWS_S3_DROP_PATH \
-        --sse aws:kms --acl public-read
+        aws s3 --debug --sse aws:kms --acl public-read cp \
+        $HOME/aws-marketplace-oe-patterns-drupal-example-site.tar.gz \
+        s3://github-user-and-bucket-githubartifactbucket-wl52dae3lyub/$AWS_S3_DROP_PATH
 
         export AWS_S3_DROP_PATH_ZIP=aws-marketplace-oe-patterns-drupal-example-site/$GITHUB_REF.zip
-        aws s3 --debug cp $HOME/aws-marketplace-oe-patterns-drupal-example-site.zip \
-        s3://github-user-and-bucket-githubartifactbucket-wl52dae3lyub/$AWS_S3_DROP_PATH_ZIP \
-        --sse aws:kms --acl public-read
+        aws s3 --debug --sse aws:kms --acl public-read cp \
+        $HOME/aws-marketplace-oe-patterns-drupal-example-site.zip \
+        s3://github-user-and-bucket-githubartifactbucket-wl52dae3lyub/$AWS_S3_DROP_PATH_ZIP
