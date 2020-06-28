@@ -1,33 +1,49 @@
-# This is a basic workflow to help you get started with Actions
+# Workflow to compress drupal code and upload to AWS S3 drop location
 
-name: CI
+name: AWS Patterns Ordinary Experts Patterns Drupal Example Site CI
 
-# Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
 on:
   push:
-    branches: [ master ]
+    branches: [ master, develop, 'feature/*' ]
+    tags: [ '*' ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, develop, 'feature/*' ]
+    tags: [ '*' ]
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
 
-    # Runs a single command using the runners shell
-    - name: Run a one-line script
-      run: echo Hello, world!
-
-    # Runs a set of commands using the runners shell
-    - name: Run a multi-line script
+    - name: Compress Drupal code archive
       run: |
-        echo Add other actions to build,
-        echo test, and deploy your project.
+        tar cfz $HOME/aws-marketplace-oe-patterns-drupal-example-site.tar.gz \
+        --exclude="drupal/sites/default/settings.local.php" \
+        --exclude=".git" \
+        .
+        zip -y -r $HOME/aws-marketplace-oe-patterns-drupal-example-site.zip . -x '.git'
+      working-directory: ${{ github.workspace }}
+
+    - name: Install aws-cli
+      run: |
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip awscliv2.zip
+        sudo ./aws/install
+
+    - name: Deploy archive to AWS S3 drop location
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.OE_PATTERNS_S3_DEV_GITHUB_AWS_ACCESS_KEY_ID }}
+        AWS_DEFAULT_REGION: us-east-1
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.OE_PATTERNS_S3_DEV_GITHUB_AWS_SECRET_ACCESS_KEY }}
+      run: |
+        export AWS_S3_DROP_PATH=aws-marketplace-oe-patterns-drupal-example-site/$GITHUB_REF.tar.gz
+        aws s3 cp $HOME/aws-marketplace-oe-patterns-drupal-example-site.tar.gz \
+        s3://github-user-and-bucket-githubartifactbucket-wl52dae3lyub/$AWS_S3_DROP_PATH \
+        --acl public-read
+
+        export AWS_S3_DROP_PATH_ZIP=aws-marketplace-oe-patterns-drupal-example-site/$GITHUB_REF.zip
+        aws s3 cp $HOME/aws-marketplace-oe-patterns-drupal-example-site.zip \
+        s3://github-user-and-bucket-githubartifactbucket-wl52dae3lyub/$AWS_S3_DROP_PATH_ZIP \
+        --acl public-read
