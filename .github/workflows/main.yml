@@ -40,10 +40,10 @@ jobs:
       run: |
         export AWS_S3_DROP_PATH=aws-marketplace-oe-patterns-drupal-example-site/$GITHUB_REF.tar.gz
         aws s3 cp $HOME/aws-marketplace-oe-patterns-drupal-example-site.tar.gz \
-        s3://github-user-and-bucket-githubartifactbucket-wl52dae3lyub/$AWS_S3_DROP_PATH \
+        s3://ordinary-experts-aws-marketplace-drupal-pattern-artifacts/$AWS_S3_DROP_PATH \
         --acl public-read
 
         export AWS_S3_DROP_PATH_ZIP=aws-marketplace-oe-patterns-drupal-example-site/$GITHUB_REF.zip
         aws s3 cp $HOME/aws-marketplace-oe-patterns-drupal-example-site.zip \
-        s3://github-user-and-bucket-githubartifactbucket-wl52dae3lyub/$AWS_S3_DROP_PATH_ZIP \
+        s3://ordinary-experts-aws-marketplace-drupal-pattern-artifacts/$AWS_S3_DROP_PATH_ZIP \
         --acl public-read
