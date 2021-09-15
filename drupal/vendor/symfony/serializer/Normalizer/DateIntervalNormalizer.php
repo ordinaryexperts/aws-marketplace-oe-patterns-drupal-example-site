@@ -22,7 +22,7 @@ use Symfony\Component\Serializer\Exception\UnexpectedValueException;
  */
 class DateIntervalNormalizer implements NormalizerInterface, DenormalizerInterface, CacheableSupportsMethodInterface
 {
-    const FORMAT_KEY = 'dateinterval_format';
+    public const FORMAT_KEY = 'dateinterval_format';
 
     private $defaultContext = [
         self::FORMAT_KEY => '%rP%yY%mM%dDT%hH%iM%sS',
@@ -34,7 +34,7 @@ class DateIntervalNormalizer implements NormalizerInterface, DenormalizerInterfa
     public function __construct($defaultContext = [])
     {
         if (!\is_array($defaultContext)) {
-            @trigger_error(sprintf('The "format" parameter is deprecated since Symfony 4.2, use the "%s" key of the context instead.', self::FORMAT_KEY), E_USER_DEPRECATED);
+            @trigger_error(sprintf('The "format" parameter is deprecated since Symfony 4.2, use the "%s" key of the context instead.', self::FORMAT_KEY), \E_USER_DEPRECATED);
 
             $defaultContext = [self::FORMAT_KEY => (string) $defaultContext];
         }
@@ -46,6 +46,8 @@ class DateIntervalNormalizer implements NormalizerInterface, DenormalizerInterfa
      * {@inheritdoc}
      *
      * @throws InvalidArgumentException
+     *
+     * @return string
      */
     public function normalize($object, $format = null, array $context = [])
     {
@@ -77,6 +79,8 @@ class DateIntervalNormalizer implements NormalizerInterface, DenormalizerInterfa
      *
      * @throws InvalidArgumentException
      * @throws UnexpectedValueException
+     *
+     * @return \DateInterval
      */
     public function denormalize($data, $type, $format = null, array $context = [])
     {

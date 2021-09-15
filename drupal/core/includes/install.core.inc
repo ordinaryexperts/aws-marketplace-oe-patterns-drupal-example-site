@@ -132,7 +132,7 @@ function install_drupal($class_loader, $settings = [], callable $callback = NULL
   // $install_state['installation_finished'] is TRUE. In case the last task
   // has been processed, remove the global $install_state, so other code can
   // reliably check whether it is running during the installer.
-  // @see drupal_installation_attempted()
+  // @see \Drupal\Core\Installer\InstallerKernel::installationAttempted()
   $state = $install_state;
   if (!empty($install_state['installation_finished'])) {
     unset($GLOBALS['install_state']);
@@ -165,7 +165,6 @@ function install_drupal($class_loader, $settings = [], callable $callback = NULL
       if (isset($install_state['profile_info']['distribution']['install']['finish_url'])) {
         $finish_url = $install_state['profile_info']['distribution']['install']['finish_url'];
       }
-      drupal_flush_all_caches();
       install_goto($finish_url);
     }
   }
@@ -250,9 +249,9 @@ function install_state_defaults() {
     // The server URL where the interface translation files can be downloaded.
     // Tokens in the pattern will be replaced by appropriate values for the
     // required translation file.
-    'server_pattern' => 'http://ftp.drupal.org/files/translations/%core/%project/%project-%version.%language.po',
+    'server_pattern' => 'https://ftp.drupal.org/files/translations/%core/%project/%project-%version.%language.po',
     // Installation tasks can set this to TRUE to force the page request to
-    // end (even if there is no themable output), in the case of an interactive
+    // end (even if there is no themeable output), in the case of an interactive
     // installation. This is needed only rarely; for example, it would be used
     // by an installation task that prints JSON output rather than returning a
     // themed page. The most common example of this is during batch processing,
@@ -1021,7 +1020,7 @@ function install_display_output($output, $install_state) {
   // Prevent install.php from being indexed when installed in a sub folder.
   // robots.txt rules are not read if the site is within domain.com/subfolder
   // resulting in /subfolder/install.php being found through search engines.
-  // When settings.php is writeable this can be used via an external database
+  // When settings.php is writable this can be used via an external database
   // leading a malicious user to gain php access to the server.
   $noindex_meta_tag = [
     '#tag' => 'meta',

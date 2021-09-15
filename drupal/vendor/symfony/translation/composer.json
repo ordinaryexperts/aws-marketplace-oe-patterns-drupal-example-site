@@ -1,7 +1,7 @@
 {
     "name": "symfony/translation",
     "type": "library",
-    "description": "Symfony Translation Component",
+    "description": "Provides tools to internationalize your application",
     "keywords": [],
     "homepage": "https://symfony.com",
     "license": "MIT",
@@ -51,10 +51,5 @@
             "/Tests/"
         ]
     },
-    "minimum-stability": "dev",
-    "extra": {
-        "branch-alias": {
-            "dev-master": "4.4-dev"
-        }
-    }
+    "minimum-stability": "dev"
 }

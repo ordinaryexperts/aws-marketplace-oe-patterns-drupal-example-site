@@ -22,16 +22,16 @@ use Symfony\Component\Serializer\Exception\UnexpectedValueException;
  */
 class CsvEncoder implements EncoderInterface, DecoderInterface
 {
-    const FORMAT = 'csv';
-    const DELIMITER_KEY = 'csv_delimiter';
-    const ENCLOSURE_KEY = 'csv_enclosure';
-    const ESCAPE_CHAR_KEY = 'csv_escape_char';
-    const KEY_SEPARATOR_KEY = 'csv_key_separator';
-    const HEADERS_KEY = 'csv_headers';
-    const ESCAPE_FORMULAS_KEY = 'csv_escape_formulas';
-    const AS_COLLECTION_KEY = 'as_collection';
-    const NO_HEADERS_KEY = 'no_headers';
-    const OUTPUT_UTF8_BOM_KEY = 'output_utf8_bom';
+    public const FORMAT = 'csv';
+    public const DELIMITER_KEY = 'csv_delimiter';
+    public const ENCLOSURE_KEY = 'csv_enclosure';
+    public const ESCAPE_CHAR_KEY = 'csv_escape_char';
+    public const KEY_SEPARATOR_KEY = 'csv_key_separator';
+    public const HEADERS_KEY = 'csv_headers';
+    public const ESCAPE_FORMULAS_KEY = 'csv_escape_formulas';
+    public const AS_COLLECTION_KEY = 'as_collection';
+    public const NO_HEADERS_KEY = 'no_headers';
+    public const OUTPUT_UTF8_BOM_KEY = 'output_utf8_bom';
 
     private const UTF8_BOM = "\xEF\xBB\xBF";
 
@@ -54,7 +54,7 @@ class CsvEncoder implements EncoderInterface, DecoderInterface
     public function __construct($defaultContext = [], string $enclosure = '"', string $escapeChar = '', string $keySeparator = '.', bool $escapeFormulas = false)
     {
         if (!\is_array($defaultContext)) {
-            @trigger_error('Passing configuration options directly to the constructor is deprecated since Symfony 4.2, use the default context instead.', E_USER_DEPRECATED);
+            @trigger_error('Passing configuration options directly to the constructor is deprecated since Symfony 4.2, use the default context instead.', \E_USER_DEPRECATED);
 
             $defaultContext = [
                 self::DELIMITER_KEY => (string) $defaultContext,
@@ -96,7 +96,7 @@ class CsvEncoder implements EncoderInterface, DecoderInterface
             }
         }
 
-        list($delimiter, $enclosure, $escapeChar, $keySeparator, $headers, $escapeFormulas, $outputBom) = $this->getCsvOptions($context);
+        [$delimiter, $enclosure, $escapeChar, $keySeparator, $headers, $escapeFormulas, $outputBom] = $this->getCsvOptions($context);
 
         foreach ($data as &$value) {
             $flattened = [];
@@ -157,7 +157,7 @@ class CsvEncoder implements EncoderInterface, DecoderInterface
         $headerCount = [];
         $result = [];
 
-        list($delimiter, $enclosure, $escapeChar, $keySeparator) = $this->getCsvOptions($context);
+        [$delimiter, $enclosure, $escapeChar, $keySeparator] = $this->getCsvOptions($context);
 
         while (false !== ($cols = fgetcsv($handle, 0, $delimiter, $enclosure, $escapeChar))) {
             $nbCols = \count($cols);
@@ -214,7 +214,7 @@ class CsvEncoder implements EncoderInterface, DecoderInterface
         }
 
         if (!isset($context['as_collection'])) {
-            @trigger_error('Relying on the default value (false) of the "as_collection" option is deprecated since 4.2. You should set it to false explicitly instead as true will be the default value in 5.0.', E_USER_DEPRECATED);
+            @trigger_error('Relying on the default value (false) of the "as_collection" option is deprecated since 4.2. You should set it to false explicitly instead as true will be the default value in 5.0.', \E_USER_DEPRECATED);
         }
 
         // If there is only one data line in the document, return it (the line), the result is not considered as a collection

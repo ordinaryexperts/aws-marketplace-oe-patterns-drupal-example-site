@@ -81,12 +81,6 @@ abstract class MigrateUpgradeExecuteTestBase extends MigrateUpgradeTestBase {
     $session->pageTextContains('Resolve all issues below to continue the upgrade.');
 
     $this->drupalPostForm(NULL, $edits, t('Review upgrade'));
-    // Ensure we get errors about missing modules.
-    $session->pageTextContains(t('Resolve all issues below to continue the upgrade.'));
-    $session->pageTextContains(t('The no_source_module plugin must define the source_module property.'));
-
-    // Uninstall the module causing the missing module error messages.
-    $this->container->get('module_installer')->uninstall(['migration_provider_test'], TRUE);
 
     // Test the file sources.
     $this->drupalGet('/upgrade');
@@ -100,11 +94,11 @@ abstract class MigrateUpgradeExecuteTestBase extends MigrateUpgradeTestBase {
     }
     $this->drupalPostForm(NULL, $paths + $edits, t('Review upgrade'));
     if ($version == 6) {
-      $session->responseContains('Failed to read from Files directory.');
+      $session->responseContains('Failed to read from Document root for files.');
     }
     else {
-      $session->responseContains('Failed to read from Public files directory.');
-      $session->responseContains('Failed to read from Private files directory.');
+      $session->responseContains('Failed to read from Document root for public files.');
+      $session->responseContains('Failed to read from Document root for private files.');
     }
 
     // Restart the upgrade process.

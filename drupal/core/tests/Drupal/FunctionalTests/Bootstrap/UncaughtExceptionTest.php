@@ -111,7 +111,7 @@ class UncaughtExceptionTest extends BrowserTestBase {
   public function testUncaughtFatalError() {
     $fatal_error = [
       '%type' => 'TypeError',
-      '@message' => 'Argument 1 passed to Drupal\error_test\Controller\ErrorTestController::Drupal\error_test\Controller\{closure}() must be of the type array, string given, called in ' . \Drupal::root() . '/core/modules/system/tests/modules/error_test/src/Controller/ErrorTestController.php on line 62',
+      '@message' => 'Argument 1 passed to Drupal\error_test\Controller\ErrorTestController::Drupal\error_test\Controller\{closure}() must be of the type array, string given, called in ' . \Drupal::root() . '/core/modules/system/tests/modules/error_test/src/Controller/ErrorTestController.php on line 63',
       '%function' => 'Drupal\error_test\Controller\ErrorTestController->Drupal\error_test\Controller\{closure}()',
     ];
     $this->drupalGet('error-test/generate-fatals');
@@ -240,8 +240,7 @@ class UncaughtExceptionTest extends BrowserTestBase {
 
       default:
         // We can not carry out this test.
-        $this->pass('Unable to run \Drupal\system\Tests\System\UncaughtExceptionTest::testLostDatabaseConnection for this database type.');
-        return;
+        $this->markTestSkipped('Unable to run \Drupal\system\Tests\System\UncaughtExceptionTest::testLostDatabaseConnection for this database type.');
     }
 
     // We simulate a broken database connection by rewrite settings.php to no
