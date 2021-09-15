@@ -28,7 +28,10 @@ class ModulesListFormWebTest extends BrowserTestBase {
   protected function setUp(): void {
     parent::setUp();
     \Drupal::state()->set('system_test.module_hidden', FALSE);
-    $this->drupalLogin($this->drupalCreateUser(['administer modules', 'administer permissions']));
+    $this->drupalLogin($this->drupalCreateUser([
+      'administer modules',
+      'administer permissions',
+    ]));
   }
 
   /**
@@ -38,18 +41,18 @@ class ModulesListFormWebTest extends BrowserTestBase {
     $this->drupalGet('admin/modules');
 
     // Check that system_test's configure link was rendered correctly.
-    $this->assertFieldByXPath("//a[contains(@href, '/system-test/configure/bar') and text()='Configure ']/span[contains(@class, 'visually-hidden') and text()='the System test module']");
+    $this->assertSession()->elementExists('xpath', "//a[contains(@href, '/system-test/configure/bar') and text()='Configure ']/span[contains(@class, 'visually-hidden') and text()='the System test module']");
 
     // Check that system_test's permissions link was rendered correctly.
-    $this->assertFieldByXPath("//a[contains(@href, '/admin/people/permissions#module-system_test') and @title='Configure permissions']");
+    $this->assertSession()->elementExists('xpath', "//a[contains(@href, '/admin/people/permissions#module-system_test') and @title='Configure permissions']");
 
     // Check that system_test's help link was rendered correctly.
-    $this->assertFieldByXPath("//a[contains(@href, '/admin/help/system_test') and @title='Help']");
+    $this->assertSession()->elementExists('xpath', "//a[contains(@href, '/admin/help/system_test') and @title='Help']");
 
     // Ensure that the Database Logging module's machine name is printed. This
     // module is used because its machine name is different than its human
     // readable name.
-    $this->assertText('dblog');
+    $this->assertSession()->pageTextContains('dblog');
   }
 
   /**
@@ -139,8 +142,8 @@ BROKEN,
     file_put_contents($file_path, Yaml::encode($compatible_info));
     $edit = ['modules[changing_module][enable]' => 'changing_module'];
     $this->drupalGet('admin/modules');
-    $this->drupalPostForm('admin/modules', $edit, t('Install'));
-    $this->assertText('Module Module that changes has been enabled.');
+    $this->submitForm($edit, 'Install');
+    $this->assertSession()->pageTextContains('Module Module that changes has been enabled.');
 
     $incompatible_updates = [
       [
@@ -154,23 +157,24 @@ BROKEN,
       $incompatible_info = $info + $incompatible_update;
       file_put_contents($file_path, Yaml::encode($incompatible_info));
       $this->drupalGet('admin/modules');
-      $this->assertText($incompatible_modules_message);
+      $this->assertSession()->pageTextContains($incompatible_modules_message);
 
       file_put_contents($file_path, Yaml::encode($compatible_info));
       $this->drupalGet('admin/modules');
-      $this->assertNoText($incompatible_modules_message);
+      $this->assertSession()->pageTextNotContains($incompatible_modules_message);
     }
     // Uninstall the module and ensure that incompatible modules message is not
     // displayed for modules that are not installed.
     $edit = ['uninstall[changing_module]' => 'changing_module'];
-    $this->drupalPostForm('admin/modules/uninstall', $edit, t('Uninstall'));
-    $this->drupalPostForm(NULL, NULL, t('Uninstall'));
-    $this->assertText('The selected modules have been uninstalled.');
+    $this->drupalGet('admin/modules/uninstall');
+    $this->submitForm($edit, 'Uninstall');
+    $this->submitForm([], 'Uninstall');
+    $this->assertSession()->pageTextContains('The selected modules have been uninstalled.');
     foreach ($incompatible_updates as $incompatible_update) {
       $incompatible_info = $info + $incompatible_update;
       file_put_contents($file_path, Yaml::encode($incompatible_info));
       $this->drupalGet('admin/modules');
-      $this->assertNoText($incompatible_modules_message);
+      $this->assertSession()->pageTextNotContains($incompatible_modules_message);
     }
   }
 

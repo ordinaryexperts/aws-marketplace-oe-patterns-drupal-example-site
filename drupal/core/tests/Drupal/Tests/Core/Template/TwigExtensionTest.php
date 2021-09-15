@@ -75,7 +75,7 @@ class TwigExtensionTest extends UnitTestCase {
   }
 
   /**
-   * Tests the escaping
+   * Tests the escaping.
    *
    * @dataProvider providerTestEscaping
    */
@@ -98,7 +98,7 @@ class TwigExtensionTest extends UnitTestCase {
   }
 
   /**
-   * Provides tests data for testEscaping
+   * Provides tests data for testEscaping.
    *
    * @return array
    *   An array of test data each containing of a twig template string and
@@ -155,9 +155,9 @@ class TwigExtensionTest extends UnitTestCase {
   public function testFormatDate() {
     $this->dateFormatter->expects($this->exactly(1))
       ->method('format')
-      ->will($this->returnCallback(function ($timestamp) {
+      ->willReturnCallback(function ($timestamp) {
         return date('Y-m-d', $timestamp);
-      }));
+      });
 
     $loader = new StringLoader();
     $twig = new Environment($loader);

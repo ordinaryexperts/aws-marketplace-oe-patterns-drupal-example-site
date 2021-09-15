@@ -577,7 +577,7 @@ function template_preprocess_form_element_label(&$variables) {
  *     array('my_function_2', array()),
  *   ),
  *   'finished' => 'my_finished_callback',
- *   'file' => 'path_to_file_containing_myfunctions',
+ *   'file' => 'path_to_file_containing_my_functions',
  * );
  * batch_set($batch);
  * // Only needed if not inside a form _submit handler.
@@ -627,7 +627,7 @@ function template_preprocess_form_element_label(&$variables) {
  *     $context['sandbox']['progress'] = 0;
  *     $context['sandbox']['current_id'] = 0;
  *     $context['sandbox']['max'] = \Drupal::database()
- *       ->query('SELECT COUNT(DISTINCT id) FROM {example}')
+ *       ->query('SELECT COUNT(DISTINCT [id]) FROM {example}')
  *       ->fetchField();
  *   }
  *   $limit = 5;
@@ -651,7 +651,9 @@ function template_preprocess_form_element_label(&$variables) {
  *
  * Sample callback_batch_finished():
  * @code
- * function my_finished_callback($success, $results, $operations) {
+ * function my_finished_callback($success, $results, $operations, $elapsed) {
+ *   // See callback_batch_finished() for more information about these
+ *   // parameters.
  *   // The 'success' parameter means no fatal PHP errors were detected. All
  *   // other error management should be handled using 'results'.
  *   if ($success) {

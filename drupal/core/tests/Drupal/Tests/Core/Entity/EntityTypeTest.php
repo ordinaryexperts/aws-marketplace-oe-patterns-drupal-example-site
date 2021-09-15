@@ -36,8 +36,8 @@ class EntityTypeTest extends UnitTestCase {
    *
    * @dataProvider providerTestGet
    */
-  public function testGet(array $defintion, $key, $expected) {
-    $entity_type = $this->setUpEntityType($defintion);
+  public function testGet(array $definition, $key, $expected) {
+    $entity_type = $this->setUpEntityType($definition);
     $this->assertSame($expected, $entity_type->get($key));
   }
 
@@ -501,9 +501,9 @@ class EntityTypeTest extends UnitTestCase {
   /**
    * @covers ::isSubclassOf
    * @group legacy
-   * @expectedDeprecation Drupal\Core\Entity\EntityType::isSubclassOf() is deprecated in drupal:8.3.0 and is removed from drupal:10.0.0. Use Drupal\Core\Entity\EntityTypeInterface::entityClassImplements() instead. See https://www.drupal.org/node/2842808
    */
   public function testIsSubClassOf() {
+    $this->expectDeprecation('Drupal\Core\Entity\EntityType::isSubclassOf() is deprecated in drupal:8.3.0 and is removed from drupal:10.0.0. Use Drupal\Core\Entity\EntityTypeInterface::entityClassImplements() instead. See https://www.drupal.org/node/2842808');
     $entity_type = $this->setUpEntityType(['class' => EntityFormMode::class]);
     $this->assertTrue($entity_type->isSubclassOf(ConfigEntityInterface::class));
     $this->assertFalse($entity_type->isSubclassOf(\DateTimeInterface::class));

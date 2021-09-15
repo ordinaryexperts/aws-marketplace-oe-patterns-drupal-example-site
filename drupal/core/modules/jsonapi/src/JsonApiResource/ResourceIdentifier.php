@@ -28,12 +28,12 @@ use Drupal\jsonapi\ResourceType\ResourceType;
  * @internal JSON:API maintains no PHP API. The API is the HTTP API. This class
  *   may change at any time and could break any dependencies on it.
  *
- * @see https://www.drupal.org/project/jsonapi/issues/3032787
+ * @see https://www.drupal.org/project/drupal/issues/3032787
  * @see jsonapi.api.php
  *
  * @see http://jsonapi.org/format/#document-resource-object-relationships
  * @see https://github.com/json-api/json-api/pull/1156#issuecomment-325377995
- * @see https://www.drupal.org/project/jsonapi/issues/2864680
+ * @see https://www.drupal.org/project/drupal/issues/2864680
  */
 class ResourceIdentifier implements ResourceIdentifierInterface {
 
@@ -103,7 +103,7 @@ class ResourceIdentifier implements ResourceIdentifierInterface {
    */
   public function getResourceType() {
     if (!isset($this->resourceType)) {
-      /* @var \Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface $resource_type_repository */
+      /** @var \Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface $resource_type_repository */
       $resource_type_repository = \Drupal::service('jsonapi.resource_type.repository');
       $this->resourceType = $resource_type_repository->getByTypeName($this->getTypeName());
     }
@@ -286,7 +286,7 @@ class ResourceIdentifier implements ResourceIdentifierInterface {
       return static::getVirtualOrMissingResourceIdentifier($item);
     }
     assert($target instanceof EntityInterface);
-    /* @var \Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface $resource_type_repository */
+    /** @var \Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface $resource_type_repository */
     $resource_type_repository = \Drupal::service('jsonapi.resource_type.repository');
     $resource_type = $resource_type_repository->get($target->getEntityTypeId(), $target->bundle());
     // Remove unwanted properties from the meta value, usually 'entity'
@@ -324,7 +324,7 @@ class ResourceIdentifier implements ResourceIdentifierInterface {
       // order. Reverse order is important so that when a parallel relationship
       // is encountered, it will have the highest arity value so the current
       // relationship's arity value can simply be incremented by one.
-      /* @var self $existing */
+      /** @var \Drupal\jsonapi\JsonApiResource\ResourceIdentifier $existing */
       foreach (array_reverse($relationships, TRUE) as $index => $existing) {
         $is_parallel = static::isParallel($existing, $relationship);
         if ($is_parallel) {
@@ -375,7 +375,7 @@ class ResourceIdentifier implements ResourceIdentifierInterface {
    *   A new ResourceIdentifier object.
    */
   public static function fromEntity(EntityInterface $entity) {
-    /* @var \Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface $resource_type_repository */
+    /** @var \Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface $resource_type_repository */
     $resource_type_repository = \Drupal::service('jsonapi.resource_type.repository');
     $resource_type = $resource_type_repository->get($entity->getEntityTypeId(), $entity->bundle());
     return new static($resource_type, $entity->uuid());

@@ -124,7 +124,7 @@ class ScaffoldTest extends TestCase {
       $this->assertFileExists($docroot);
     }
     else {
-      $this->assertFileNotExists($sut . '/docroot');
+      $this->assertFileDoesNotExist($sut . '/docroot');
     }
 
     return new ScaffoldTestResult($docroot, $scaffoldOutput);
@@ -190,7 +190,6 @@ class ScaffoldTest extends TestCase {
    */
   public function testProjectThatScaffoldsEmptyProject() {
     $fixture_name = 'project-allowing-empty-fixture';
-    $is_link = FALSE;
     $result = $this->scaffoldSut($fixture_name, FALSE, FALSE);
     $this->assertStringContainsString('The allowed package fixtures/empty-fixture does not provide a file mapping for Composer Scaffold', $result->scaffoldOutput());
     $this->assertCommonDrupalAssetsWereScaffolded($result->docroot(), FALSE);
@@ -255,7 +254,7 @@ class ScaffoldTest extends TestCase {
   }
 
   /**
-   * Test values for testDrupalDrupalFileWasAppended.
+   * Provides test values for testDrupalDrupalFileWasAppended.
    */
   public function scaffoldAppendTestValues() {
     return array_merge(
@@ -278,7 +277,7 @@ include __DIR__ . "/settings-custom-additions.php";',
   }
 
   /**
-   * Test values to run both with $is_link FALSE and $is_link TRUE.
+   * Tests values to run both with $is_link FALSE and $is_link TRUE.
    *
    * @param bool $is_link
    *   Whether or not symlinking should be used.
@@ -371,7 +370,7 @@ include __DIR__ . "/settings-custom-additions.php";',
   protected function assertHtaccessExcluded($docroot) {
     // Ensure that the .htaccess.txt file was not written, as our
     // top-level composer.json excludes it from the files to scaffold.
-    $this->assertFileNotExists($docroot . '/.htaccess');
+    $this->assertFileDoesNotExist($docroot . '/.htaccess');
   }
 
   /**

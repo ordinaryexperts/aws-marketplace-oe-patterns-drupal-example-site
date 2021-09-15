@@ -15,7 +15,7 @@ use Drupal\Tests\UnitTestCase;
 class PhpUnitTestRunnerTest extends UnitTestCase {
 
   /**
-   * Test an error in the test running phase.
+   * Tests an error in the test running phase.
    *
    * @covers ::runTests
    */
@@ -57,7 +57,7 @@ class PhpUnitTestRunnerTest extends UnitTestCase {
       'test_id' => $test_id,
       'test_class' => 'SomeTest',
       'status' => TestStatus::label(TestStatus::EXCEPTION),
-      'message' => 'PHPunit Test failed to complete; Error: ',
+      'message' => 'PHPUnit Test failed to complete; Error: ',
       'message_group' => 'Other',
       'function' => 'SomeTest',
       'line' => '0',
@@ -71,7 +71,7 @@ class PhpUnitTestRunnerTest extends UnitTestCase {
    */
   public function testPhpUnitCommand() {
     $runner = new PhpUnitTestRunner($this->root, sys_get_temp_dir());
-    $this->assertRegExp('/phpunit/', $runner->phpUnitCommand());
+    $this->assertMatchesRegularExpression('/phpunit/', $runner->phpUnitCommand());
   }
 
   /**
