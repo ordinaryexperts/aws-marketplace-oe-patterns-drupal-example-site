@@ -19,7 +19,7 @@ use Drupal\Core\Lock\LockBackendInterface;
 use Drupal\Core\Config\StorageComparer;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Url;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -60,7 +60,7 @@ class ConfigSync extends FormBase {
   /**
    * Event dispatcher.
    *
-   * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
+   * @var \Symfony\Contracts\EventDispatcher\EventDispatcherInterface
    */
   protected $eventDispatcher;
 
@@ -131,7 +131,7 @@ class ConfigSync extends FormBase {
    *   The snapshot storage.
    * @param \Drupal\Core\Lock\LockBackendInterface $lock
    *   The lock object.
-   * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher
+   * @param \Symfony\Contracts\EventDispatcher\EventDispatcherInterface $event_dispatcher
    *   Event dispatcher.
    * @param \Drupal\Core\Config\ConfigManagerInterface $config_manager
    *   Configuration manager.
@@ -206,7 +206,8 @@ class ConfigSync extends FormBase {
     $syncStorage = $this->importTransformer->transform($this->syncStorage);
     $source_list = $syncStorage->listAll();
     $storage_comparer = new StorageComparer($syncStorage, $this->activeStorage);
-    if (empty($source_list) || !$storage_comparer->createChangelist()->hasChanges()) {
+    $storage_comparer->createChangelist();
+    if (empty($source_list) || !$storage_comparer->hasChanges()) {
       $form['no_changes'] = [
         '#type' => 'table',
         '#header' => [$this->t('Name'), $this->t('Operations')],
@@ -225,7 +226,8 @@ class ConfigSync extends FormBase {
     // warned of potential losses to configuration.
     if ($this->snapshotStorage->exists('core.extension')) {
       $snapshot_comparer = new StorageComparer($this->activeStorage, $this->snapshotStorage);
-      if (!$form_state->getUserInput() && $snapshot_comparer->createChangelist()->hasChanges()) {
+      $snapshot_comparer->createChangelist();
+      if (!$form_state->getUserInput() && $snapshot_comparer->hasChanges()) {
         $change_list = [];
         foreach ($snapshot_comparer->getAllCollectionNames() as $collection) {
           foreach ($snapshot_comparer->getChangelist(NULL, $collection) as $config_names) {
@@ -365,10 +367,10 @@ class ConfigSync extends FormBase {
         $batch = [
           'operations' => [],
           'finished' => [ConfigImporterBatch::class, 'finish'],
-          'title' => t('Synchronizing configuration'),
-          'init_message' => t('Starting configuration synchronization.'),
-          'progress_message' => t('Completed step @current of @total.'),
-          'error_message' => t('Configuration synchronization has encountered an error.'),
+          'title' => $this->t('Synchronizing configuration'),
+          'init_message' => $this->t('Starting configuration synchronization.'),
+          'progress_message' => $this->t('Completed step @current of @total.'),
+          'error_message' => $this->t('Configuration synchronization has encountered an error.'),
         ];
         foreach ($sync_steps as $sync_step) {
           $batch['operations'][] = [[ConfigImporterBatch::class, 'process'], [$config_importer, $sync_step]];

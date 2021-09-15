@@ -186,7 +186,7 @@ class ImageWidget extends FileWidget {
   }
 
   /**
-   * Form API callback: Processes a image_image field element.
+   * Form API callback: Processes an image_image field element.
    *
    * Expands the image_image type to include the alt and title fields.
    *
@@ -206,10 +206,14 @@ class ImageWidget extends FileWidget {
         'uri' => $file->getFileUri(),
       ];
 
+      $dimension_key = $variables['uri'] . '.image_preview_dimensions';
       // Determine image dimensions.
       if (isset($element['#value']['width']) && isset($element['#value']['height'])) {
         $variables['width'] = $element['#value']['width'];
         $variables['height'] = $element['#value']['height'];
+      }
+      elseif ($form_state->has($dimension_key)) {
+        $variables += $form_state->get($dimension_key);
       }
       else {
         $image = \Drupal::service('image.factory')->get($file->getFileUri());
@@ -233,14 +237,7 @@ class ImageWidget extends FileWidget {
 
       // Store the dimensions in the form so the file doesn't have to be
       // accessed again. This is important for remote files.
-      $element['width'] = [
-        '#type' => 'hidden',
-        '#value' => $variables['width'],
-      ];
-      $element['height'] = [
-        '#type' => 'hidden',
-        '#value' => $variables['height'],
-      ];
+      $form_state->set($dimension_key, ['width' => $variables['width'], 'height' => $variables['height']]);
     }
     elseif (!empty($element['#default_image'])) {
       $default_image = $element['#default_image'];
@@ -268,7 +265,7 @@ class ImageWidget extends FileWidget {
       '#weight' => -12,
       '#access' => (bool) $item['fids'] && $element['#alt_field'],
       '#required' => $element['#alt_field_required'],
-      '#element_validate' => $element['#alt_field_required'] == 1 ? [[get_called_class(), 'validateRequiredFields']] : [],
+      '#element_validate' => $element['#alt_field_required'] == 1 ? [[static::class, 'validateRequiredFields']] : [],
     ];
     $element['title'] = [
       '#type' => 'textfield',
@@ -279,7 +276,7 @@ class ImageWidget extends FileWidget {
       '#weight' => -11,
       '#access' => (bool) $item['fids'] && $element['#title_field'],
       '#required' => $element['#title_field_required'],
-      '#element_validate' => $element['#title_field_required'] == 1 ? [[get_called_class(), 'validateRequiredFields']] : [],
+      '#element_validate' => $element['#title_field_required'] == 1 ? [[static::class, 'validateRequiredFields']] : [],
     ];
 
     return parent::process($element, $form_state, $form);

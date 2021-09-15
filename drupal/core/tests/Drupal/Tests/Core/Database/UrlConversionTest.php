@@ -48,13 +48,13 @@ class UrlConversionTest extends UnitTestCase {
    *
    * @dataProvider providerConvertDbUrlToConnectionInfo
    */
-  public function testDbUrltoConnectionConversion($root, $url, $database_array) {
+  public function testDbUrlToConnectionConversion($root, $url, $database_array) {
     $result = Database::convertDbUrlToConnectionInfo($url, $root ?: $this->root);
     $this->assertEquals($database_array, $result);
   }
 
   /**
-   * Dataprovider for testDbUrltoConnectionConversion().
+   * Data provider for testDbUrlToConnectionConversion().
    *
    * @return array
    *   Array of arrays with the following elements:
@@ -205,7 +205,7 @@ class UrlConversionTest extends UnitTestCase {
   }
 
   /**
-   * Test ::convertDbUrlToConnectionInfo() exception for invalid arguments.
+   * Tests ::convertDbUrlToConnectionInfo() exception for invalid arguments.
    *
    * @dataProvider providerInvalidArgumentsUrlConversion
    */
@@ -216,7 +216,7 @@ class UrlConversionTest extends UnitTestCase {
   }
 
   /**
-   * Dataprovider for testGetInvalidArgumentExceptionInUrlConversion().
+   * Data provider for testGetInvalidArgumentExceptionInUrlConversion().
    *
    * @return array
    *   Array of arrays with the following elements:
@@ -248,7 +248,7 @@ class UrlConversionTest extends UnitTestCase {
   }
 
   /**
-   * Dataprovider for testGetConnectionInfoAsUrl().
+   * Data provider for testGetConnectionInfoAsUrl().
    *
    * @return array
    *   Array of arrays with the following elements:
@@ -357,7 +357,7 @@ class UrlConversionTest extends UnitTestCase {
   }
 
   /**
-   * Test ::getConnectionInfoAsUrl() exception for invalid arguments.
+   * Tests ::getConnectionInfoAsUrl() exception for invalid arguments.
    *
    * @covers ::getConnectionInfoAsUrl
    *
@@ -376,7 +376,7 @@ class UrlConversionTest extends UnitTestCase {
   }
 
   /**
-   * Dataprovider for testGetInvalidArgumentGetConnectionInfoAsUrl().
+   * Data provider for testGetInvalidArgumentGetConnectionInfoAsUrl().
    *
    * @return array
    *   Array of arrays with the following elements:

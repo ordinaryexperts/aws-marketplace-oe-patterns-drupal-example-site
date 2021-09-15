@@ -296,29 +296,14 @@
       }
     }
   };
-  Drupal.behaviors.viewsUiRearrangeFilter = {
-    attach: function attach(context) {
-      if (typeof Drupal.tableDrag === 'undefined' || typeof Drupal.tableDrag['views-rearrange-filters'] === 'undefined') {
-        return;
-      }
-
-      var $context = $(context);
-      var $table = $context.find('#views-rearrange-filters').once('views-rearrange-filters');
-      var $operator = $context.find('.js-form-item-filter-groups-operator').once('views-rearrange-filters');
-
-      if ($table.length) {
-        new Drupal.viewsUi.RearrangeFilterHandler($table, $operator);
-      }
-    }
-  };
 
   Drupal.viewsUi.RearrangeFilterHandler = function ($table, $operator) {
     this.table = $table;
     this.operator = $operator;
     this.hasGroupOperator = this.operator.length > 0;
     this.draggableRows = $table.find('.draggable');
-    this.addGroupButton = $('input#views-add-group');
-    this.removeGroupButtons = $table.find('input.views-remove-group');
+    this.addGroupButton = $('#views-add-group');
+    this.removeGroupButtons = $table.find('.views-remove-group');
     this.insertAddRemoveFilterGroupLinks();
 
     if (this.hasGroupOperator) {
@@ -600,6 +585,21 @@
         $context.find("#display-removed-".concat(id)).prop('checked', true);
         event.preventDefault();
       });
+    }
+  };
+  Drupal.behaviors.viewsUiRearrangeFilter = {
+    attach: function attach(context) {
+      if (typeof Drupal.tableDrag === 'undefined' || typeof Drupal.tableDrag['views-rearrange-filters'] === 'undefined') {
+        return;
+      }
+
+      var $context = $(context);
+      var $table = $context.find('#views-rearrange-filters').once('views-rearrange-filters');
+      var $operator = $context.find('.js-form-item-filter-groups-operator').once('views-rearrange-filters');
+
+      if ($table.length) {
+        new Drupal.viewsUi.RearrangeFilterHandler($table, $operator);
+      }
     }
   };
 })(jQuery, Drupal, drupalSettings);

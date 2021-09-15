@@ -311,7 +311,7 @@ class EntityContentBase extends Entity implements HighestIdInterface, MigrateVal
 
     // Populate any required fields not already populated.
     $fields = $this->entityFieldManager
-      ->getFieldDefinitions($this->storage->getEntityTypeId(), $bundle_key);
+      ->getFieldDefinitions($this->storage->getEntityTypeId(), $row->getDestinationProperty($bundle_key));
     foreach ($fields as $field_name => $field_definition) {
       if ($field_definition->isRequired() && is_null($row->getDestinationProperty($field_name))) {
         // Use the configured default value for this specific field, if any.
@@ -319,8 +319,6 @@ class EntityContentBase extends Entity implements HighestIdInterface, MigrateVal
           $values = $default_value;
         }
         else {
-          // Otherwise, ask the field type to generate a sample value.
-          $field_type = $field_definition->getType();
           /** @var \Drupal\Core\Field\FieldItemInterface $field_type_class */
           $field_type_class = $this->fieldTypeManager
             ->getPluginClass($field_definition->getType());

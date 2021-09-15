@@ -113,7 +113,7 @@ function drush_batch_command($id) {
  *   A return array. The callers only care about the finished marker and an #abort on an operation.
  *
  */
-function _drush_backend_batch_process($command = 'batch-process', $args, $options) {
+function _drush_backend_batch_process($command = 'batch-process', $args = [], $options = []) {
   $result = NULL;
 
   $batch =& batch_get();
@@ -150,6 +150,8 @@ function _drush_backend_batch_process($command = 'batch-process', $args, $option
 
     while (!$finished) {
       $process = Drush::drush(Drush::aliasManager()->getSelf(), $command, $args);
+      // We already re-spawn when memory is low so no need for timeout.
+      $process->setTimeout(null);
       // Suppress printing stdout since a JSON array is returned to us here.
       $process->run($process->showRealtime()->hideStdout());
       $result = $process->getOutputAsJson();

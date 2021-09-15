@@ -5,6 +5,7 @@ namespace Drupal\Core\Database\Driver\sqlite;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Database\DatabaseNotFoundException;
 use Drupal\Core\Database\Connection as DatabaseConnection;
+use Drupal\Core\Database\StatementInterface;
 
 /**
  * SQLite implementation of \Drupal\Core\Database\Connection.
@@ -15,6 +16,16 @@ class Connection extends DatabaseConnection {
    * Error code for "Unable to open database file" error.
    */
   const DATABASE_NOT_FOUND = 14;
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $statementClass = NULL;
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $statementWrapperClass = NULL;
 
   /**
    * Whether or not the active transaction (if any) will be rolled back.
@@ -36,17 +47,20 @@ class Connection extends DatabaseConnection {
   ];
 
   /**
-   * All databases attached to the current database. This is used to allow
-   * prefixes to be safely handled without locking the table
+   * All databases attached to the current database.
+   *
+   * This is used to allow prefixes to be safely handled without locking the
+   * table.
    *
    * @var array
    */
   protected $attachedDatabases = [];
 
   /**
-   * Whether or not a table has been dropped this request: the destructor will
-   * only try to get rid of unnecessary databases if there is potential of them
-   * being empty.
+   * Whether or not a table has been dropped this request.
+   *
+   * The destructor will only try to get rid of unnecessary databases if there
+   * is potential of them being empty.
    *
    * This variable is set to public because Schema needs to
    * access it. However, it should not be manually set.
@@ -58,20 +72,18 @@ class Connection extends DatabaseConnection {
   /**
    * {@inheritdoc}
    */
+  protected $transactionalDDLSupport = TRUE;
+
+  /**
+   * {@inheritdoc}
+   */
   protected $identifierQuotes = ['"', '"'];
 
   /**
    * Constructs a \Drupal\Core\Database\Driver\sqlite\Connection object.
    */
   public function __construct(\PDO $connection, array $connection_options) {
-    // We don't need a specific PDOStatement class here, we simulate it in
-    // static::prepare().
-    $this->statementClass = NULL;
-
     parent::__construct($connection, $connection_options);
-
-    // This driver defaults to transaction support, except if explicitly passed FALSE.
-    $this->transactionSupport = $this->transactionalDDLSupport = !isset($connection_options['transactions']) || $connection_options['transactions'] !== FALSE;
 
     // Attach one database for each registered prefix.
     $prefixes = $this->prefixes;
@@ -130,6 +142,7 @@ class Connection extends DatabaseConnection {
     // Create functions needed by SQLite.
     $pdo->sqliteCreateFunction('if', [__CLASS__, 'sqlFunctionIf']);
     $pdo->sqliteCreateFunction('greatest', [__CLASS__, 'sqlFunctionGreatest']);
+    $pdo->sqliteCreateFunction('least', [__CLASS__, 'sqlFunctionLeast']);
     $pdo->sqliteCreateFunction('pow', 'pow', 2);
     $pdo->sqliteCreateFunction('exp', 'exp', 1);
     $pdo->sqliteCreateFunction('length', 'strlen', 1);
@@ -196,6 +209,7 @@ class Connection extends DatabaseConnection {
         }
       }
     }
+    parent::__destruct();
   }
 
   /**
@@ -233,6 +247,16 @@ class Connection extends DatabaseConnection {
     else {
       return NULL;
     }
+  }
+
+  /**
+   * SQLite compatibility implementation for the LEAST() SQL function.
+   */
+  public static function sqlFunctionLeast() {
+    // Remove all NULL, FALSE and empty strings values but leaves 0 (zero) values.
+    $values = array_filter(func_get_args(), 'strlen');
+
+    return count($values) < 1 ? NULL : min($values);
   }
 
   /**
@@ -334,6 +358,7 @@ class Connection extends DatabaseConnection {
    * {@inheritdoc}
    */
   public function prepare($statement, array $driver_options = []) {
+    @trigger_error('Connection::prepare() is deprecated in drupal:9.1.0 and is removed from drupal:10.0.0. Database drivers should instantiate \PDOStatement objects by calling \PDO::prepare in their Connection::prepareStatement method instead. \PDO::prepare should not be called outside of driver code. See https://www.drupal.org/node/3137786', E_USER_DEPRECATED);
     return new Statement($this->connection, $this, $statement, $driver_options);
   }
 
@@ -348,6 +373,7 @@ class Connection extends DatabaseConnection {
     // @see http://www.sqlite.org/faq.html#q15
     // @see http://www.sqlite.org/rescode.html#schema
     if (!empty($e->errorInfo[1]) && $e->errorInfo[1] === 17) {
+      @trigger_error('Connection::handleQueryException() is deprecated in drupal:9.2.0 and is removed in drupal:10.0.0. Get a handler through $this->exceptionHandler() instead, and use one of its methods. See https://www.drupal.org/node/3187222', E_USER_DEPRECATED);
       return $this->query($query, $args, $options);
     }
 
@@ -401,12 +427,15 @@ class Connection extends DatabaseConnection {
   /**
    * {@inheritdoc}
    */
-  public function prepareQuery($query, $quote_identifiers = TRUE) {
-    $query = $this->prefixTables($query);
-    if ($quote_identifiers) {
-      $query = $this->quoteIdentifiers($query);
+  public function prepareStatement(string $query, array $options): StatementInterface {
+    try {
+      $query = $this->preprocessStatement($query, $options);
+      $statement = new Statement($this->connection, $this, $query, $options['pdo'] ?? []);
     }
-    return $this->prepare($query);
+    catch (\Exception $e) {
+      $this->exceptionHandler()->handleStatementException($e, $query, $options);
+    }
+    return $statement;
   }
 
   public function nextId($existing_id = 0) {

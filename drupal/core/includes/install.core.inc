@@ -32,13 +32,13 @@ use Drupal\Core\Extension\ExtensionDiscovery;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\Url;
 use Drupal\language\Entity\ConfigurableLanguage;
-use Symfony\Cmf\Component\Routing\RouteObjectInterface;
+use Drupal\Core\Routing\RouteObjectInterface;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Route;
 use Drupal\user\Entity\User;
-use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\TransferException;
 
 /**
  * Do not run the task during the current installation request.
@@ -165,7 +165,6 @@ function install_drupal($class_loader, $settings = [], callable $callback = NULL
       if (isset($install_state['profile_info']['distribution']['install']['finish_url'])) {
         $finish_url = $install_state['profile_info']['distribution']['install']['finish_url'];
       }
-      drupal_flush_all_caches();
       install_goto($finish_url);
     }
   }
@@ -311,9 +310,6 @@ function install_begin_request($class_loader, &$install_state) {
   if (!empty($install_state['parameters']['langcode'])) {
     $install_state['parameters']['langcode'] = preg_replace('/[^a-zA-Z_0-9\-]/', '', $install_state['parameters']['langcode']);
   }
-
-  // Allow command line scripts to override server variables used by Drupal.
-  require_once __DIR__ . '/bootstrap.inc';
 
   // If the hash salt leaks, it becomes possible to forge a valid testing user
   // agent, install a new copy of Drupal, and take over the original site.
@@ -668,8 +664,12 @@ function install_run_task($task, &$install_state) {
       // @todo Replace this when we refactor the installer to use a request-
       //   response workflow.
       if ($output instanceof Response) {
+        if (\Drupal::request()->hasSession()) {
+          \Drupal::request()->getSession()->save();
+        }
+        // Send the response.
         $output->send();
-        $output = NULL;
+        exit;
       }
       // The task is complete when we try to access the batch page and receive
       // FALSE in return, since this means we are at a URL where we are no
@@ -1104,15 +1104,10 @@ function install_base_system(&$install_state) {
   // @todo Remove as part of https://www.drupal.org/node/2186491
   drupal_get_filename('module', 'user', 'core/modules/user/user.info.yml');
 
-  // Enable the user module so that sessions can be recorded during the
-  // upcoming bootstrap step.
+  // Install the User module so that installing from configuration works and to
+  // ensure the anonymous user is created with a langcode of 'en'.
   \Drupal::service('module_installer')->install(['user'], FALSE);
 
-  // Save the list of other modules to install for the upcoming tasks.
-  // State can be set to the database now that system.module is installed.
-  $modules = $install_state['profile_info']['install'];
-
-  \Drupal::state()->set('install_profile_modules', array_diff($modules, ['system']));
   $install_state['base_system_verified'] = TRUE;
 }
 
@@ -1406,6 +1401,7 @@ function install_download_translation(&$install_state) {
   // Check whether all conditions are met to download. Download the translation
   // if possible.
   $requirements = install_check_translations($install_state['parameters']['langcode'], $install_state['server_pattern']);
+  // Render requirements if any warnings or errors returned.
   if ($output = install_display_requirements($install_state, $requirements)) {
     return $output;
   }
@@ -1450,7 +1446,7 @@ function install_retrieve_file($uri, $destination) {
       return FALSE;
     }
   }
-  catch (RequestException $e) {
+  catch (TransferException $e) {
     return FALSE;
   }
   return file_put_contents($path, $data) !== FALSE;
@@ -1470,7 +1466,7 @@ function install_check_localization_server($uri) {
     \Drupal::httpClient()->head($uri);
     return TRUE;
   }
-  catch (RequestException $e) {
+  catch (TransferException $e) {
     return FALSE;
   }
 }
@@ -1566,9 +1562,8 @@ function install_profile_modules(&$install_state) {
   // as those will not be handled by the module installer.
   install_core_entity_type_definitions();
 
-  $modules = \Drupal::state()->get('install_profile_modules') ?: [];
+  $modules = $install_state['profile_info']['install'];
   $files = \Drupal::service('extension.list.module')->getList();
-  \Drupal::state()->delete('install_profile_modules');
 
   // Always install required modules first. Respect the dependencies between
   // the modules.
@@ -1581,7 +1576,9 @@ function install_profile_modules(&$install_state) {
       $modules = array_merge($modules, array_keys($files[$module]->requires));
     }
   }
-  $modules = array_unique($modules);
+  // The System and User modules have already been installed by
+  // install_base_system().
+  $modules = array_diff(array_unique($modules), ['system', 'user']);
   foreach ($modules as $module) {
     if (!empty($files[$module]->info['required'])) {
       $required[$module] = $files[$module]->sort;
@@ -1699,11 +1696,12 @@ function install_download_additional_translations_operations(&$install_state) {
   $languages = \Drupal::languageManager()->getLanguages();
   $operations = [];
   foreach ($languages as $langcode => $language) {
-    // The installer language was already downloaded. Check downloads for the
-    // other languages if any. Ignore any download errors here, since we
-    // are in the middle of an install process and there is no way back. We
-    // will not import what we cannot download.
-    if ($langcode != 'en' && $langcode != $install_state['parameters']['langcode']) {
+    // The installer language was already downloaded. Available translations are
+    // stored in $install_state. Check downloads for the other languages if any.
+    // Ignore any download errors here, since we are in the middle of an install
+    // process and there is no way back. We will not import what we cannot
+    // download.
+    if (!isset($install_state['translations'][$langcode])) {
       $operations[] = ['install_check_translations', [$langcode, $install_state['server_pattern']]];
     }
   }
@@ -1870,6 +1868,9 @@ function install_finished(&$install_state) {
     '@drupal' => drupal_install_profile_distribution_name(),
   ]);
   \Drupal::messenger()->addStatus($success_message);
+
+  // Record when this install ran.
+  \Drupal::state()->set('install_time', $_SERVER['REQUEST_TIME']);
 }
 
 /**
@@ -1891,11 +1892,9 @@ function _install_module_batch($module, $module_name, &$context) {
  * @param string $server_pattern
  *   Server access pattern (to replace language code, version number, etc. in).
  *
- * @return array|null
- *   Requirements compliance array. If the translation was downloaded
- *   successfully then an empty array is returned. Otherwise the requirements
- *   error with detailed information. NULL if the file already exists for this
- *   language code.
+ * @return array
+ *   Requirements compliance array. If the translation cannot be downloaded this
+ *   will contain a requirements error with detailed information.
  */
 function install_check_translations($langcode, $server_pattern) {
   $requirements = [];
@@ -1922,11 +1921,6 @@ function install_check_translations($langcode, $server_pattern) {
     $readable = is_readable($translations_directory);
     $writable = is_writable($translations_directory);
     $translations_directory_exists = TRUE;
-  }
-
-  // The file already exists, no need to attempt to download.
-  if ($existing_file = glob($translations_directory . '/drupal-*.' . $langcode . '.po')) {
-    return;
   }
 
   $version = \Drupal::VERSION;

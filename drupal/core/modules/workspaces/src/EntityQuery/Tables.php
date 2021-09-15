@@ -63,7 +63,7 @@ class Tables extends BaseTables {
     // looking for workspace-specific revisions, we have to force the parent
     // method to always pick the revision tables if the field being queried is
     // revisionable.
-    if ($active_workspace_id = $this->sqlQuery->getMetaData('active_workspace_id')) {
+    if ($this->sqlQuery->getMetaData('active_workspace_id')) {
       $previous_all_revisions = $this->sqlQuery->getMetaData('all_revisions');
       $this->sqlQuery->addMetaData('all_revisions', TRUE);
     }
@@ -147,7 +147,7 @@ class Tables extends BaseTables {
 
       // LEFT join the Workspace association entity's table so we can properly
       // include live content along with a possible workspace-specific revision.
-      $this->contentWorkspaceTables[$base_table_alias] = $this->sqlQuery->leftJoin('workspace_association', NULL, "%alias.target_entity_type_id = '$entity_type_id' AND %alias.target_entity_id = $base_table_alias.$id_field AND %alias.workspace = '$active_workspace_id'");
+      $this->contentWorkspaceTables[$base_table_alias] = $this->sqlQuery->leftJoin('workspace_association', NULL, "[%alias].[target_entity_type_id] = '$entity_type_id' AND [%alias].[target_entity_id] = [$base_table_alias].[$id_field] AND [%alias].[workspace] = '$active_workspace_id'");
 
       $this->baseTablesEntityType[$base_table_alias] = $entity_type->id();
     }
