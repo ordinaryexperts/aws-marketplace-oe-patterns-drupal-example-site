@@ -32,7 +32,7 @@ trait DoTrustedCallbackTrait {
    * @param string $error_type
    *   (optional) The type of error to trigger. One of:
    *   - TrustedCallbackInterface::THROW_EXCEPTION
-   *   - TrustedCallbackInterface::TRIGGER_DEPRECATION
+   *   - TrustedCallbackInterface::TRIGGER_WARNING
    *   - TrustedCallbackInterface::TRIGGER_SILENCED_DEPRECATION
    *   Defaults to TrustedCallbackInterface::THROW_EXCEPTION.
    * @param string $extra_trusted_interface
@@ -97,7 +97,8 @@ trait DoTrustedCallbackTrait {
       }
     }
 
-    return call_user_func_array($callback, $args);
+    // @TODO Allow named arguments in https://www.drupal.org/node/3174150
+    return call_user_func_array($callback, array_values($args));
   }
 
 }

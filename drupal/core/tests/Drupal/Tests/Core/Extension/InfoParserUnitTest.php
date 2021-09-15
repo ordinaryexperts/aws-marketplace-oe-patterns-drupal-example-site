@@ -48,7 +48,7 @@ class InfoParserUnitTest extends UnitTestCase {
   }
 
   /**
-   * Test if correct exception is thrown for a broken info file.
+   * Tests if correct exception is thrown for a broken info file.
    *
    * @covers ::parse
    */
@@ -334,7 +334,7 @@ CORE_8X;
   }
 
   /**
-   * Dataprovider for testCore8x().
+   * Data provider for testCore8x().
    */
   public function providerCore8x() {
     return [
@@ -444,7 +444,7 @@ INVALID_CORE_VERSION_REQUIREMENT;
   }
 
   /**
-   * Dataprovider for testCoreVersionRequirementInvalid().
+   * Data provider for testCoreVersionRequirementInvalid().
    */
   public function providerCoreVersionRequirementInvalid() {
     return [
@@ -519,9 +519,9 @@ COMMONTEST;
         ],
       ]);
       $info_values = $this->infoParser->parse(vfsStream::url("modules/fixtures/$filename"));
-      $this->assertEquals($info_values['simple_string'], 'A simple string', 'Simple string value was parsed correctly.');
-      $this->assertEquals($info_values['version'], \Drupal::VERSION, 'Constant value was parsed correctly.');
-      $this->assertEquals($info_values['double_colon'], 'dummyClassName::method', 'Value containing double-colon was parsed correctly.');
+      $this->assertEquals('A simple string', $info_values['simple_string'], 'Simple string value was parsed correctly.');
+      $this->assertEquals(\Drupal::VERSION, $info_values['version'], 'Constant value was parsed correctly.');
+      $this->assertEquals('dummyClassName::method', $info_values['double_colon'], 'Value containing double-colon was parsed correctly.');
       $this->assertFalse($info_values['core_incompatible']);
     }
   }
@@ -548,7 +548,7 @@ CORETEST;
       ],
     ]);
     $info_values = $this->infoParser->parse(vfsStream::url("core/fixtures/$filename"));
-    $this->assertEquals($info_values['version'], \Drupal::VERSION, 'Constant value was parsed correctly.');
+    $this->assertEquals(\Drupal::VERSION, $info_values['version'], 'Constant value was parsed correctly.');
     $this->assertFalse($info_values['core_incompatible']);
     $this->assertEquals(\Drupal::VERSION, $info_values['core_version_requirement']);
   }
@@ -583,7 +583,7 @@ CORE_INCOMPATIBILITY;
   }
 
   /**
-   * Dataprovider for testCoreIncompatibility().
+   * Data provider for testCoreIncompatibility().
    */
   public function providerCoreIncompatibility() {
     list($major, $minor) = explode('.', \Drupal::VERSION);
@@ -615,7 +615,7 @@ CORE_INCOMPATIBILITY;
   }
 
   /**
-   * Test a profile info file.
+   * Tests a profile info file.
    */
   public function testProfile() {
     $profile = <<<PROFILE_TEST

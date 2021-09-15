@@ -33,7 +33,7 @@ class MessageCatalogue implements MessageCatalogueInterface, MetadataAwareInterf
     public function __construct(?string $locale, array $messages = [])
     {
         if (null === $locale) {
-            @trigger_error(sprintf('Passing "null" to the first argument of the "%s" method has been deprecated since Symfony 4.4 and will throw an error in 5.0.', __METHOD__), E_USER_DEPRECATED);
+            @trigger_error(sprintf('Passing "null" to the first argument of the "%s" method has been deprecated since Symfony 4.4 and will throw an error in 5.0.', __METHOD__), \E_USER_DEPRECATED);
         }
 
         $this->locale = $locale;
@@ -167,7 +167,7 @@ class MessageCatalogue implements MessageCatalogueInterface, MetadataAwareInterf
         }
         $intlDomain = $domain;
         $suffixLength = \strlen(self::INTL_DOMAIN_SUFFIX);
-        if (\strlen($domain) > $suffixLength && false !== strpos($domain, self::INTL_DOMAIN_SUFFIX, -$suffixLength)) {
+        if (\strlen($domain) < $suffixLength || false === strpos($domain, self::INTL_DOMAIN_SUFFIX, -$suffixLength)) {
             $intlDomain .= self::INTL_DOMAIN_SUFFIX;
         }
         foreach ($messages as $id => $message) {

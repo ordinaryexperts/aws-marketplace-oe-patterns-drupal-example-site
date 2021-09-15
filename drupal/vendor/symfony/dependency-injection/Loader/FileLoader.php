@@ -58,7 +58,7 @@ abstract class FileLoader extends BaseFileLoader
         if ($ignoreNotFound = 'not_found' === $ignoreErrors) {
             $args[2] = false;
         } elseif (!\is_bool($ignoreErrors)) {
-            @trigger_error(sprintf('Invalid argument $ignoreErrors provided to %s::import(): boolean or "not_found" expected, %s given.', static::class, \gettype($ignoreErrors)), E_USER_DEPRECATED);
+            @trigger_error(sprintf('Invalid argument $ignoreErrors provided to %s::import(): boolean or "not_found" expected, %s given.', static::class, \gettype($ignoreErrors)), \E_USER_DEPRECATED);
             $args[2] = (bool) $ignoreErrors;
         }
 
@@ -166,8 +166,8 @@ abstract class FileLoader extends BaseFileLoader
                     $excludePrefix = $resource->getPrefix();
                 }
 
-                // normalize Windows slashes
-                $excludePaths[str_replace('\\', '/', $path)] = true;
+                // normalize Windows slashes and remove trailing slashes
+                $excludePaths[rtrim(str_replace('\\', '/', $path), '/')] = true;
             }
         }
 

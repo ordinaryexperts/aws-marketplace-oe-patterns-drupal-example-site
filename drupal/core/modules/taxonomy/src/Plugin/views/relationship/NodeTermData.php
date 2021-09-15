@@ -131,9 +131,11 @@ class NodeTermData extends RelationshipPluginBase {
       $def['adjusted'] = TRUE;
 
       $query = Database::getConnection()->select('taxonomy_term_field_data', 'td');
-      $query->addJoin($def['type'], 'taxonomy_index', 'tn', 'tn.tid = td.tid');
+      $query->addJoin($def['type'], 'taxonomy_index', 'tn', '[tn].[tid] = [td].[tid]');
       $query->condition('td.vid', array_filter($this->options['vids']), 'IN');
-      $query->addTag('taxonomy_term_access');
+      if (empty($this->query->options['disable_sql_rewrite'])) {
+        $query->addTag('taxonomy_term_access');
+      }
       $query->fields('td');
       $query->fields('tn', ['nid']);
       $def['table formula'] = $query;

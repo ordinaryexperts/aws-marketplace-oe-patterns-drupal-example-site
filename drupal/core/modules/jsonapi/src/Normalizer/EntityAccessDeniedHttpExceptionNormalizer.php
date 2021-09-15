@@ -16,7 +16,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
  * @internal JSON:API maintains no PHP API since its API is the HTTP API. This
  *   class may change at any time and this will break any dependencies on it.
  *
- * @see https://www.drupal.org/project/jsonapi/issues/3032787
+ * @see https://www.drupal.org/project/drupal/issues/3032787
  * @see jsonapi.api.php
  *
  * @see http://jsonapi.org/format/#error-objects
@@ -47,7 +47,7 @@ class EntityAccessDeniedHttpExceptionNormalizer extends HttpExceptionNormalizer 
       if (isset($entity)) {
         $entity_type_id = $entity->getEntityTypeId();
         $bundle = $entity->bundle();
-        /* @var \Drupal\jsonapi\ResourceType\ResourceType $resource_type */
+        /** @var \Drupal\jsonapi\ResourceType\ResourceType $resource_type */
         $resource_type = \Drupal::service('jsonapi.resource_type.repository')->get($entity_type_id, $bundle);
         $resource_type_name = $resource_type->getTypeName();
         $route_name = !is_null($relationship_field)

@@ -368,7 +368,7 @@ abstract class ContentEntityStorageBase extends EntityStorageBase implements Con
     $entity_type = $this->getEntityType();
 
     // A list of known revision metadata fields which should be skipped from
-    // the comparision.
+    // the comparison.
     $field_names = [
       $entity_type->getKey('revision'),
       $entity_type->getKey('revision_translation_affected'),
@@ -1063,7 +1063,15 @@ abstract class ContentEntityStorageBase extends EntityStorageBase implements Con
   }
 
   /**
-   * {@inheritdoc}
+   * Resets the entity cache.
+   *
+   * Content entities have both an in-memory static cache and a persistent
+   * cache. Use this method to clear all caches. To clear just the in-memory
+   * cache, use the 'entity.memory_cache' service.
+   *
+   * @param array $ids
+   *   (optional) If specified, the cache is reset for the entities with the
+   *   given ids only.
    */
   public function resetCache(array $ids = NULL) {
     if ($ids) {

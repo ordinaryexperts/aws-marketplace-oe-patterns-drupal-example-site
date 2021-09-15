@@ -10,7 +10,7 @@ use Drupal\Core\Render\Element;
 use Drupal\system\Tests\Routing\MockRouteProvider;
 use Drupal\Tests\Core\Menu\MenuLinkMock;
 use Drupal\user\Entity\User;
-use Symfony\Cmf\Component\Routing\RouteObjectInterface;
+use Drupal\Core\Routing\RouteObjectInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
@@ -172,7 +172,7 @@ class SystemMenuBlockTest extends KernelTestBase {
         'stark',
       ],
     ];
-    $this->assertIdentical($expected, $dependencies);
+    $this->assertSame($expected, $dependencies);
   }
 
   /**
@@ -227,7 +227,7 @@ class SystemMenuBlockTest extends KernelTestBase {
     foreach ($blocks as $id => $block) {
       $block_build = $block->build();
       $items = isset($block_build['#items']) ? $block_build['#items'] : [];
-      $this->assertIdentical($no_active_trail_expectations[$id], $this->convertBuiltMenuToIdTree($items), new FormattableMarkup('Menu block %id with no active trail renders the expected tree.', ['%id' => $id]));
+      $this->assertSame($no_active_trail_expectations[$id], $this->convertBuiltMenuToIdTree($items), new FormattableMarkup('Menu block %id with no active trail renders the expected tree.', ['%id' => $id]));
     }
 
     // Scenario 2: test all block instances when there's an active trail.
@@ -279,7 +279,7 @@ class SystemMenuBlockTest extends KernelTestBase {
     foreach ($blocks as $id => $block) {
       $block_build = $block->build();
       $items = isset($block_build['#items']) ? $block_build['#items'] : [];
-      $this->assertIdentical($active_trail_expectations[$id], $this->convertBuiltMenuToIdTree($items), new FormattableMarkup('Menu block %id with an active trail renders the expected tree.', ['%id' => $id]));
+      $this->assertSame($active_trail_expectations[$id], $this->convertBuiltMenuToIdTree($items), new FormattableMarkup('Menu block %id with an active trail renders the expected tree.', ['%id' => $id]));
     }
   }
 

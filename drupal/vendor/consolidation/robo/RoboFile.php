@@ -105,6 +105,10 @@ class RoboFile extends \Robo\Tasks
             ->push()
             ->run();
 
+        if ($stable) {
+            $this->pharPublish();
+        }
+
         $this->publish();
         $this->taskGitStack()
             ->tag($version)
@@ -112,7 +116,6 @@ class RoboFile extends \Robo\Tasks
             ->run();
 
         if ($stable) {
-            $this->pharPublish();
             $version = $this->incrementVersion($version) . '-dev';
             $this->writeVersion($version);
 
@@ -385,7 +388,7 @@ class RoboFile extends \Robo\Tasks
             ->taskComposerInstall()
                 ->dir($roboBuildDir)
                 ->noScripts()
-                ->printed(true)
+                ->printOutput(true)
                 ->run();
 
         // Exit if the preparation step failed

@@ -70,9 +70,9 @@ class ToolbarCacheContextsTest extends BrowserTestBase {
     $this->installExtraModules(['dynamic_page_cache']);
     $this->drupalLogin($this->adminUser);
     $this->drupalGet('test-page');
-    $this->assertSame('MISS', $this->getSession()->getResponseHeader('X-Drupal-Dynamic-Cache'));
+    $this->assertSession()->responseHeaderEquals('X-Drupal-Dynamic-Cache', 'MISS');
     $this->drupalGet('test-page');
-    $this->assertSame('HIT', $this->getSession()->getResponseHeader('X-Drupal-Dynamic-Cache'));
+    $this->assertSession()->responseHeaderEquals('X-Drupal-Dynamic-Cache', 'HIT');
   }
 
   /**
@@ -131,12 +131,7 @@ class ToolbarCacheContextsTest extends BrowserTestBase {
     $this->drupalGet('test-page');
     $return = $return && $this->assertCacheContexts($cache_contexts);
 
-    if ($return) {
-      $this->pass($message);
-    }
-    else {
-      $this->fail($message);
-    }
+    $this->assertTrue($return, $message);
     return $return;
   }
 

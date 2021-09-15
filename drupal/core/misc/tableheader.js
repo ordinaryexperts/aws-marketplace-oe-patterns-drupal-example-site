@@ -78,7 +78,7 @@
     'scroll.TableHeader': tableHeaderOnScrollHandler
   });
   $(document).on({
-    'columnschange.TableHeader': tableHeaderResizeHandler,
+    'columnschange.TableHeader drupalToolbarTrayChange': tableHeaderResizeHandler,
     'drupalViewportOffsetChange.TableHeader': tableHeaderOffsetChangeHandler
   });
   $.extend(TableHeader, {
@@ -90,6 +90,7 @@
     tableHeight: null,
     stickyVisible: false,
     createSticky: function createSticky() {
+      this.$html = $('html');
       var $stickyHeader = this.$originalHeader.clone(true);
       this.$stickyTable = $('<table class="sticky-header"></table>').css({
         visibility: 'hidden',
@@ -110,6 +111,7 @@
         css.left = "".concat(this.tableOffset.left - offsetLeft, "px");
       }
 
+      this.$html.css('scroll-padding-top', displace.offsets.top + (this.stickyVisible ? this.$stickyTable.height() : 0));
       return this.$stickyTable.css(css);
     },
     checkStickyVisible: function checkStickyVisible() {

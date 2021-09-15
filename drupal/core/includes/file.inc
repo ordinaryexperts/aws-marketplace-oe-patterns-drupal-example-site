@@ -6,6 +6,7 @@
  */
 
 use Drupal\Component\Utility\UrlHelper;
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperManager;
 
 /**
@@ -125,6 +126,13 @@ function file_url_transform_relative($file_url) {
   $host = $request->getHost();
   $scheme = $request->getScheme();
   $port = $request->getPort() ?: 80;
+
+  // Files may be accessible on a different port than the web request.
+  $file_url_port = parse_url($file_url, PHP_URL_PORT) ?? $port;
+  if ($file_url_port != $port) {
+    return $file_url;
+  }
+
   if (('http' == $scheme && $port == 80) || ('https' == $scheme && $port == 443)) {
     $http_host = $host;
   }
@@ -159,8 +167,8 @@ function file_build_uri($path) {
  * exploit.php_.pps.
  *
  * Specifically, this function adds an underscore to all extensions that are
- * between 2 and 5 characters in length, internal to the file name, and not
- * included in $extensions.
+ * between 2 and 5 characters in length, internal to the file name, and either
+ * included in the list of unsafe extensions, or not included in $extensions.
  *
  * Function behavior is also controlled by the configuration
  * 'system.file:allow_insecure_uploads'. If it evaluates to TRUE, no alterations
@@ -168,15 +176,22 @@ function file_build_uri($path) {
  * @param $filename
  *   File name to modify.
  * @param $extensions
- *   A space-separated list of extensions that should not be altered.
+ *   A space-separated list of extensions that should not be altered. Note that
+ *   extensions that are unsafe will be altered regardless of this parameter.
  * @param $alerts
  *   If TRUE, \Drupal::messenger()->addStatus() will be called to display
  *   a message if the file name was changed.
  *
  * @return string
  *   The potentially modified $filename.
+ *
+ * @deprecated in drupal:9.2.0 and is removed from drupal:10.0.0. Dispatch a
+ *   \Drupal\Core\File\Event\FileUploadSanitizeNameEvent event instead.
+ *
+ * @see https://www.drupal.org/node/3032541
  */
 function file_munge_filename($filename, $extensions, $alerts = TRUE) {
+  @trigger_error('file_munge_filename() is deprecated in drupal:9.2.0 and is removed from drupal:10.0.0. Dispatch a \Drupal\Core\File\Event\FileUploadSanitizeNameEvent event instead. See https://www.drupal.org/node/3032541', E_USER_DEPRECATED);
   $original = $filename;
 
   // Allow potentially insecure uploads for very savvy users and admin
@@ -185,7 +200,10 @@ function file_munge_filename($filename, $extensions, $alerts = TRUE) {
     // http://php.net/manual/security.filesystem.nullbytes.php
     $filename = str_replace(chr(0), '', $filename);
 
-    $whitelist = array_unique(explode(' ', strtolower(trim($extensions))));
+    $allowed_extensions = array_unique(explode(' ', strtolower(trim($extensions))));
+
+    // Remove unsafe extensions from the allowed list of extensions.
+    $allowed_extensions = array_diff($allowed_extensions, FileSystemInterface::INSECURE_EXTENSIONS);
 
     // Split the filename up by periods. The first part becomes the basename
     // the last part the final extension.
@@ -200,7 +218,7 @@ function file_munge_filename($filename, $extensions, $alerts = TRUE) {
     // of allowed extensions.
     foreach ($filename_parts as $filename_part) {
       $new_filename .= '.' . $filename_part;
-      if (!in_array(strtolower($filename_part), $whitelist) && preg_match("/^[a-zA-Z]{2,5}\d?$/", $filename_part)) {
+      if (!in_array(strtolower($filename_part), $allowed_extensions) && preg_match("/^[a-zA-Z]{2,5}\d?$/", $filename_part)) {
         $new_filename .= '_';
       }
     }
@@ -222,8 +240,14 @@ function file_munge_filename($filename, $extensions, $alerts = TRUE) {
  *
  * @return
  *   An unmunged filename string.
+ *
+ * @deprecated in drupal:9.2.0 and is removed from drupal:10.0.0. Use
+ *   str_replace() instead.
+ *
+ * @see https://www.drupal.org/node/3032541
  */
 function file_unmunge_filename($filename) {
+  @trigger_error('file_unmunge_filename() is deprecated in drupal:9.2.0 and is removed from drupal:10.0.0. Use str_replace() instead. See https://www.drupal.org/node/3032541', E_USER_DEPRECATED);
   return str_replace('_.', '.', $filename);
 }
 

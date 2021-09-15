@@ -155,8 +155,8 @@ class OEmbedFormatterTest extends MediaFunctionalTestBase {
    * @param string $url
    *   The canonical URL of the media asset to test.
    * @param string $resource_url
-   *   The oEmebd resource URL of the media asset to test.
-   * @param mixed $formatter_settings
+   *   The oEmbed resource URL of the media asset to test.
+   * @param array $formatter_settings
    *   Settings for the oEmbed field formatter.
    * @param array $selectors
    *   An array of arrays. Each key is a CSS selector targeting an element in

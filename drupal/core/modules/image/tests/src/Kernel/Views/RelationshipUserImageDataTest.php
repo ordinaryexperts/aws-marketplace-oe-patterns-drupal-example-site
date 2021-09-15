@@ -61,7 +61,7 @@ class RelationshipUserImageDataTest extends ViewsKernelTestBase {
       'required' => 0,
     ])->save();
 
-    ViewTestData::createTestViews(get_class($this), ['image_test_views']);
+    ViewTestData::createTestViews(static::class, ['image_test_views']);
   }
 
   /**
@@ -96,7 +96,7 @@ class RelationshipUserImageDataTest extends ViewsKernelTestBase {
         'user',
       ],
     ];
-    $this->assertIdentical($expected, $view->getDependencies());
+    $this->assertSame($expected, $view->getDependencies());
     $this->executeView($view);
     $expected_result = [
       [

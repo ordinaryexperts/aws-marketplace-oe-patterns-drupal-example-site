@@ -97,7 +97,7 @@ class LocalActionManagerTest extends UnitTestCase {
   protected $discovery;
 
   /**
-   * The tested local action manager
+   * The tested local action manager.
    *
    * @var \Drupal\Tests\Core\Menu\TestLocalActionManager
    */
@@ -188,7 +188,7 @@ class LocalActionManagerTest extends UnitTestCase {
     }
     $this->factory->expects($this->any())
       ->method('createInstance')
-      ->will($this->returnValueMap($map));
+      ->willReturnMap($map);
 
     $this->assertEquals($expected_actions, $this->localActionManager->getActionsForRoute($route_appears));
   }
