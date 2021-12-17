@@ -19,7 +19,7 @@ jobs:
 
     - name: Compress Drupal code archive
       run: |
-        zip -y -r $HOME/aws-marketplace-oe-patterns-drupal-example-site.zip . -x '.git'
+        zip -y -r $HOME/aws-marketplace-oe-patterns-drupal-example-site.zip . -x '/.git/*' -x '/.github/*'
       working-directory: ${{ github.workspace }}
 
     - name: Deploy archive to AWS S3 drop location
