@@ -3,7 +3,6 @@
 namespace Drupal\Tests\config_translation\Functional;
 
 use Drupal\Component\Utility\Html;
-use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Core\Language\Language;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Test\AssertMailTrait;
@@ -161,8 +160,8 @@ class ConfigTranslationUiTest extends BrowserTestBase {
     $this->clickLink('Add');
 
     // Make sure original text is present on this page.
-    $this->assertRaw($site_name);
-    $this->assertRaw($site_slogan);
+    $this->assertSession()->pageTextContains($site_name);
+    $this->assertSession()->pageTextContains($site_slogan);
 
     // Update site name and slogan for French.
     $edit = [
@@ -189,8 +188,8 @@ class ConfigTranslationUiTest extends BrowserTestBase {
 
     // Check French translation of site name and slogan are in place.
     $this->drupalGet('fr');
-    $this->assertRaw($fr_site_name);
-    $this->assertRaw($fr_site_slogan);
+    $this->assertSession()->pageTextContains($fr_site_name);
+    $this->assertSession()->pageTextContains($fr_site_slogan);
 
     // Visit French site to ensure base language string present as source.
     $this->drupalGet("fr/$translation_base_url/fr/edit");
@@ -414,15 +413,15 @@ class ConfigTranslationUiTest extends BrowserTestBase {
 
     // Test that delete links work and operations perform properly.
     foreach ($this->langcodes as $langcode) {
-      $replacements = ['%label' => t('@label @entity_type', ['@label' => $label, '@entity_type' => mb_strtolower(t('Contact form'))]), '@language' => \Drupal::languageManager()->getLanguage($langcode)->getName()];
+      $language = \Drupal::languageManager()->getLanguage($langcode)->getName();
 
       $this->drupalGet("$translation_base_url/$langcode/delete");
-      $this->assertSession()->responseContains(t('Are you sure you want to delete the @language translation of %label?', $replacements));
+      $this->assertSession()->pageTextContains("Are you sure you want to delete the $language translation of $label contact form?");
       // Assert link back to list page to cancel delete is present.
       $this->assertSession()->linkByHrefExists($translation_base_url);
 
       $this->submitForm([], 'Delete');
-      $this->assertSession()->responseContains(t('@language translation of %label was deleted', $replacements));
+      $this->assertSession()->pageTextContains("$language translation of $label contact form was deleted");
       $this->assertSession()->linkByHrefExists("$translation_base_url/$langcode/add");
       $this->assertSession()->linkByHrefNotExists("translation_base_url/$langcode/edit");
       $this->assertSession()->linkByHrefNotExists("$translation_base_url/$langcode/delete");
@@ -486,7 +485,7 @@ class ConfigTranslationUiTest extends BrowserTestBase {
       $this->assertSession()->pageTextContains($label);
 
       // Make sure that the date library is added.
-      $this->assertRaw('core/modules/system/js/system.date.js');
+      $this->assertSession()->responseContains('core/modules/system/js/system.date.js');
 
       // Update translatable fields.
       $edit = [
@@ -616,8 +615,8 @@ class ConfigTranslationUiTest extends BrowserTestBase {
     $this->clickLink('Add');
 
     // Make sure original text is present on this page.
-    $this->assertRaw($description);
-    $this->assertRaw($human_readable_name);
+    $this->assertSession()->pageTextContains($description);
+    $this->assertSession()->pageTextContains($human_readable_name);
 
     // Update Views Fields for French.
     $edit = [
@@ -679,7 +678,7 @@ class ConfigTranslationUiTest extends BrowserTestBase {
       // Check if the expected number of source elements are present.
       foreach ($data['expected'] as $index => $expected) {
         if ($expected) {
-          $this->assertRaw('edit-source-config-names-viewsviewfiles-display-default-display-options-fields-count-format-plural-string-' . $index);
+          $this->assertSession()->responseContains('edit-source-config-names-viewsviewfiles-display-default-display-options-fields-count-format-plural-string-' . $index);
         }
         else {
           $this->assertSession()->responseNotContains('edit-source-config-names-viewsviewfiles-display-default-display-options-fields-count-format-plural-string-' . $index);
@@ -713,7 +712,7 @@ class ConfigTranslationUiTest extends BrowserTestBase {
 
     // Make sure original text is present on this page, in addition to 2 new
     // empty fields.
-    $this->assertRaw($description);
+    $this->assertSession()->pageTextContains($description);
     $this->assertSession()->fieldValueEquals('translation[config_names][views.view.files][display][default][display_options][fields][count][format_plural_string][0]', $field_value);
     $this->assertSession()->fieldValueEquals('translation[config_names][views.view.files][display][default][display_options][fields][count][format_plural_string][1]', $field_value_plural);
     $this->assertSession()->fieldValueEquals('translation[config_names][views.view.files][display][default][display_options][fields][count][format_plural_string][2]', '');
@@ -843,7 +842,7 @@ class ConfigTranslationUiTest extends BrowserTestBase {
 
     // Make sure there is no translation stored in locale storage before edit.
     $translation = $this->getTranslation('user.settings', 'anonymous', 'fr');
-    $this->assertTrue(empty($translation));
+    $this->assertEmpty($translation);
 
     // Add custom translation.
     $edit = [
@@ -1088,7 +1087,7 @@ class ConfigTranslationUiTest extends BrowserTestBase {
 
     // Check that the translations are saved.
     $this->clickLink('Add');
-    $this->assertRaw('FR label');
+    $this->assertSession()->responseContains('FR label');
   }
 
   /**
@@ -1124,12 +1123,12 @@ class ConfigTranslationUiTest extends BrowserTestBase {
    */
   protected function getTranslation($config_name, $key, $langcode) {
     $settings_locations = $this->localeStorage->getLocations(['type' => 'configuration', 'name' => $config_name]);
-    $this->assertTrue(!empty($settings_locations), new FormattableMarkup('Configuration locations found for %config_name.', ['%config_name' => $config_name]));
+    $this->assertNotEmpty($settings_locations, "$config_name should have configuration locations.");
 
     if (!empty($settings_locations)) {
       $source = $this->container->get('config.factory')->get($config_name)->get($key);
       $source_string = $this->localeStorage->findString(['source' => $source, 'type' => 'configuration']);
-      $this->assertTrue(!empty($source_string), new FormattableMarkup('Found string for %config_name.%key.', ['%config_name' => $config_name, '%key' => $key]));
+      $this->assertNotEmpty($source_string, "$config_name.$key should have a source string.");
 
       if (!empty($source_string)) {
         $conditions = [
@@ -1147,7 +1146,9 @@ class ConfigTranslationUiTest extends BrowserTestBase {
    * Sets site name and slogan for default language, helps in tests.
    *
    * @param string $site_name
+   *   The site name.
    * @param string $site_slogan
+   *   The site slogan.
    */
   protected function setSiteInformation($site_name, $site_slogan) {
     $edit = [
@@ -1184,10 +1185,9 @@ class ConfigTranslationUiTest extends BrowserTestBase {
    * @param string $id
    *   The HTML ID of the textarea.
    *
-   * @return bool
-   *   TRUE if the assertion passed; FALSE otherwise.
+   * @internal
    */
-  protected function assertDisabledTextarea($id) {
+  protected function assertDisabledTextarea(string $id): void {
     $textarea = $this->assertSession()->fieldDisabled($id);
     $this->assertSame('textarea', $textarea->getTagName());
     $this->assertSame('This field has been disabled because you do not have sufficient permissions to edit it.', $textarea->getText());

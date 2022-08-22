@@ -31,6 +31,20 @@ class EntitySchemaTest extends EntityKernelTestBase {
   protected $database;
 
   /**
+   * The entity field manager.
+   *
+   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
+   */
+  protected $entityFieldManager;
+
+  /**
+   * The entity definition update manager.
+   *
+   * @var \Drupal\Core\Entity\EntityDefinitionUpdateManagerInterface
+   */
+  protected $entityDefinitionUpdateManager;
+
+  /**
    * {@inheritdoc}
    */
   protected function setUp(): void {
@@ -337,7 +351,7 @@ class EntitySchemaTest extends EntityKernelTestBase {
     $entity_type_id_count = 0;
 
     foreach (array_keys($schema) as $storage_definition_name) {
-      list($entity_type_id, ,) = explode('.', $storage_definition_name);
+      [$entity_type_id] = explode('.', $storage_definition_name);
       if (in_array($entity_type_id, $entity_type_ids)) {
         $entity_type_id_count++;
       }
@@ -358,7 +372,7 @@ class EntitySchemaTest extends EntityKernelTestBase {
     $entity_type_id_count = 0;
 
     foreach (array_keys($schema) as $storage_definition_name) {
-      list($entity_type_id, ,) = explode('.', $storage_definition_name);
+      [$entity_type_id] = explode('.', $storage_definition_name);
       if (in_array($entity_type_id, $entity_type_ids)) {
         $entity_type_id_count++;
       }

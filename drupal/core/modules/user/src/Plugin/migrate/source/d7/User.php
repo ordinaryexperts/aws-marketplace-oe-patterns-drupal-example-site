@@ -8,7 +8,8 @@ use Drupal\migrate_drupal\Plugin\migrate\source\d7\FieldableEntity;
 /**
  * Drupal 7 user source from database.
  *
- * For available configuration keys, refer to the parent classes:
+ * For available configuration keys, refer to the parent classes.
+ *
  * @see \Drupal\migrate\Plugin\migrate\source\SqlBase
  * @see \Drupal\migrate\Plugin\migrate\source\SourcePluginBase
  *
@@ -75,7 +76,7 @@ class User extends FieldableEntity {
       ->fetchCol();
     $row->setSourceProperty('roles', $roles);
 
-    $row->setSourceProperty('data', unserialize($row->getSourceProperty('data')));
+    $row->setSourceProperty('data', unserialize($row->getSourceProperty('data') ?? ''));
 
     // If this entity was translated using Entity Translation, we need to get
     // its source language to get the field values in the right language.

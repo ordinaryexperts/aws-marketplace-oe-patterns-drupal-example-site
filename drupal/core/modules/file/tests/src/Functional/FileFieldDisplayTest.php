@@ -80,7 +80,7 @@ class FileFieldDisplayTest extends FileFieldTestBase {
       '#file' => $node_file,
     ];
     $default_output = \Drupal::service('renderer')->renderRoot($file_link);
-    $this->assertRaw($default_output);
+    $this->assertSession()->responseContains($default_output);
 
     // Turn the "display" option off and check that the file is no longer displayed.
     $edit = [$field_name . '[0][display]' => FALSE];
@@ -100,7 +100,7 @@ class FileFieldDisplayTest extends FileFieldTestBase {
     $this->assertSession()->pageTextContains($description);
 
     // Ensure the filename in the link's title attribute is escaped.
-    $this->assertRaw('title="escaped-&amp;-text.txt"');
+    $this->assertSession()->responseContains('title="escaped-&amp;-text.txt"');
 
     // Test that fields appear as expected after during the preview.
     // Add a second file.
@@ -115,9 +115,9 @@ class FileFieldDisplayTest extends FileFieldTestBase {
     $this->submitForm($edit, 'Preview');
     $this->clickLink('Back to content editing');
     // First file.
-    $this->assertRaw($field_name . '[0][display]');
+    $this->assertSession()->responseContains($field_name . '[0][display]');
     // Second file.
-    $this->assertRaw($field_name . '[1][display]');
+    $this->assertSession()->responseContains($field_name . '[1][display]');
     $this->assertSession()->responseContains($field_name . '[1][description]');
 
     // Check that the file fields don't contain duplicate HTML IDs.
@@ -228,7 +228,7 @@ class FileFieldDisplayTest extends FileFieldTestBase {
 
     // Test default formatter.
     $this->drupalGet('node/' . $nid);
-    $this->assertSession()->elementTextContains('xpath', '//a[@href="' . $node->{$field_name}->entity->createFileUrl(FALSE) . '"]', $description);
+    $this->assertSession()->elementTextContains('xpath', '//a[@href="' . $node->{$field_name}->entity->createFileUrl() . '"]', $description);
 
     // Change formatter to "Table of files".
     $display = \Drupal::entityTypeManager()->getStorage('entity_view_display')->load('node.' . $type_name . '.default');
@@ -238,7 +238,7 @@ class FileFieldDisplayTest extends FileFieldTestBase {
     ])->save();
 
     $this->drupalGet('node/' . $nid);
-    $this->assertSession()->elementTextContains('xpath', '//a[@href="' . $node->{$field_name}->entity->createFileUrl(FALSE) . '"]', $description);
+    $this->assertSession()->elementTextContains('xpath', '//a[@href="' . $node->{$field_name}->entity->createFileUrl() . '"]', $description);
   }
 
 }

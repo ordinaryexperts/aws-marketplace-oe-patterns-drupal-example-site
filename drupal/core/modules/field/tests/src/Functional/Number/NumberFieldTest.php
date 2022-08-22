@@ -4,6 +4,7 @@ namespace Drupal\Tests\field\Functional\Number;
 
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\field\FieldConfigInterface;
 use Drupal\Tests\BrowserTestBase;
 
 /**
@@ -76,7 +77,7 @@ class NumberFieldTest extends BrowserTestBase {
     // Display creation form.
     $this->drupalGet('entity_test/add');
     $this->assertSession()->fieldValueEquals("{$field_name}[0][value]", '');
-    $this->assertRaw('placeholder="0.00"');
+    $this->assertSession()->responseContains('placeholder="0.00"');
 
     // Submit a signed decimal value within the allowed precision and scale.
     $value = '-1234.5678';
@@ -87,7 +88,7 @@ class NumberFieldTest extends BrowserTestBase {
     preg_match('|entity_test/manage/(\d+)|', $this->getUrl(), $match);
     $id = $match[1];
     $this->assertSession()->pageTextContains('entity_test ' . $id . ' has been created.');
-    $this->assertRaw($value);
+    $this->assertSession()->responseContains($value);
 
     // Try to create entries with more than one decimal separator; assert fail.
     $wrong_entries = [
@@ -191,7 +192,7 @@ class NumberFieldTest extends BrowserTestBase {
     // Display creation form.
     $this->drupalGet('entity_test/add');
     $this->assertSession()->fieldValueEquals("{$field_name}[0][value]", '');
-    $this->assertRaw('placeholder="4"');
+    $this->assertSession()->responseContains('placeholder="4"');
 
     // Submit a valid integer
     $value = rand($minimum, $maximum);
@@ -251,7 +252,7 @@ class NumberFieldTest extends BrowserTestBase {
       preg_match('|entity_test/manage/(\d+)|', $this->getUrl(), $match);
       $id = $match[1];
       $this->assertSession()->pageTextContains('entity_test ' . $id . ' has been created.');
-      $this->assertRaw($valid_entry);
+      $this->assertSession()->responseContains($valid_entry);
       // Verify that the "content" attribute is not present since the Prefix is
       // not being displayed.
       $this->assertSession()->elementNotExists('xpath', '//div[@content="' . $valid_entry . '"]');
@@ -320,7 +321,7 @@ class NumberFieldTest extends BrowserTestBase {
     // Display creation form.
     $this->drupalGet('entity_test/add');
     $this->assertSession()->fieldValueEquals("{$field_name}[0][value]", '');
-    $this->assertRaw('placeholder="0.00"');
+    $this->assertSession()->responseContains('placeholder="0.00"');
 
     // Submit a signed decimal value within the allowed precision and scale.
     $value = '-1234.5678';
@@ -335,7 +336,7 @@ class NumberFieldTest extends BrowserTestBase {
     // Ensure that the 'number_decimal' formatter displays the number with the
     // expected rounding.
     $this->drupalGet('entity_test/' . $id);
-    $this->assertRaw(round($value, 2));
+    $this->assertSession()->responseContains(round($value, 2));
 
     // Try to create entries with more than one decimal separator; assert fail.
     $wrong_entries = [
@@ -426,8 +427,10 @@ class NumberFieldTest extends BrowserTestBase {
 
   /**
    * Helper function to set the minimum value of a field.
+   *
+   * @internal
    */
-  public function assertSetMinimumValue($field, $minimum_value) {
+  public function assertSetMinimumValue(FieldConfigInterface $field, $minimum_value): void {
     $field_configuration_url = 'entity_test/structure/entity_test/fields/entity_test.entity_test.' . $field->getName();
 
     // Set the minimum value.

@@ -8,6 +8,7 @@ use Drupal\Core\Url;
  * Add feed test.
  *
  * @group aggregator
+ * @group legacy
  */
 class AddFeedTest extends AggregatorTestBase {
 
@@ -38,7 +39,7 @@ class AddFeedTest extends AggregatorTestBase {
     $this->assertSession()->statusCodeEquals(200);
     // Verify that the feed label is present in the page title.
     $this->assertSession()->pageTextContains($feed->label());
-    $this->assertRaw($feed->getWebsiteUrl());
+    $this->assertSession()->pageTextContains($feed->getWebsiteUrl());
 
     // Try to add a duplicate.
     $edit = [

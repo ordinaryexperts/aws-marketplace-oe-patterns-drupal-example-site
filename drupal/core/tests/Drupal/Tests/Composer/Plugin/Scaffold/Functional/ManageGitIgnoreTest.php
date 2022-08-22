@@ -93,7 +93,7 @@ class ManageGitIgnoreTest extends TestCase {
     $this->mustExec('git add .', $sut);
     $this->mustExec('git commit -m "Initial commit."', $sut);
     // Run composer install, but suppress scaffolding.
-    $this->fixtures->runComposer("install --no-ansi --no-scripts", $sut);
+    $this->fixtures->runComposer("install --no-ansi --no-scripts --no-plugins", $sut);
     return $sut;
   }
 
@@ -202,7 +202,14 @@ EOT;
     // executable script named 'git' that always exits with 127, as if git were
     // not found. Note that we run our tests using process isolation, so we do
     // not need to restore the PATH when we are done.
-    $unavailableGitPath = $this->fixtures->binFixtureDir('disable-git-bin');
+    $unavailableGitPath = $sut . '/bin';
+    mkdir($unavailableGitPath);
+    $bash = <<<SH
+#!/bin/bash
+exit 127
+
+SH;
+    file_put_contents($unavailableGitPath . '/git', $bash);
     chmod($unavailableGitPath . '/git', 0755);
     $oldPath = getenv('PATH');
     putenv('PATH=' . $unavailableGitPath . ':' . getenv('PATH'));
@@ -211,14 +218,11 @@ EOT;
     exec('git --help', $output, $status);
     $this->assertEquals(127, $status);
     // Run the scaffold command.
-    $output = [];
-    exec('composer drupal:scaffold', $output, $status);
+    $output = $this->mustExec('composer drupal:scaffold 2>&1', NULL);
 
     putenv('PATH=' . $oldPath . ':' . getenv('PATH'));
 
     $expected = <<<EOT
-0
-
 Scaffolding files for fixtures/drupal-assets-fixture:
   - Copy [web-root]/.csslintrc from assets/.csslintrc
   - Copy [web-root]/.editorconfig from assets/.editorconfig
@@ -240,8 +244,9 @@ Scaffolding files for fixtures/scaffold-override-fixture:
 Scaffolding files for fixtures/drupal-composer-drupal-project:
   - Skip [web-root]/.htaccess: disabled
   - Copy [web-root]/robots.txt from assets/robots-default.txt
+
 EOT;
-    $this->assertEquals($expected, $status . "\n\n" . implode("\n", $output));
+    $this->assertEquals($expected, $output);
     $this->assertFileExists($sut . '/docroot/index.php');
     $this->assertFileDoesNotExist($sut . '/docroot/sites/default/.gitignore');
   }

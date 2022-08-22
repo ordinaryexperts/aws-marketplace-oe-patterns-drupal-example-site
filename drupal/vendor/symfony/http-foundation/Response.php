@@ -77,7 +77,7 @@ class Response
     public const HTTP_PRECONDITION_REQUIRED = 428;                                       // RFC6585
     public const HTTP_TOO_MANY_REQUESTS = 429;                                           // RFC6585
     public const HTTP_REQUEST_HEADER_FIELDS_TOO_LARGE = 431;                             // RFC6585
-    public const HTTP_UNAVAILABLE_FOR_LEGAL_REASONS = 451;
+    public const HTTP_UNAVAILABLE_FOR_LEGAL_REASONS = 451;                               // RFC7725
     public const HTTP_INTERNAL_SERVER_ERROR = 500;
     public const HTTP_NOT_IMPLEMENTED = 501;
     public const HTTP_BAD_GATEWAY = 502;
@@ -125,7 +125,7 @@ class Response
      *
      * The list of codes is complete according to the
      * {@link https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml Hypertext Transfer Protocol (HTTP) Status Code Registry}
-     * (last updated 2016-03-01).
+     * (last updated 2018-09-21).
      *
      * Unless otherwise noted, the status code is defined in RFC2616.
      *
@@ -311,7 +311,7 @@ class Response
         }
 
         // Check if we need to send extra expire info headers
-        if ('1.0' == $this->getProtocolVersion() && false !== strpos($headers->get('Cache-Control'), 'no-cache')) {
+        if ('1.0' == $this->getProtocolVersion() && str_contains($headers->get('Cache-Control', ''), 'no-cache')) {
             $headers->set('pragma', 'no-cache');
             $headers->set('expires', -1);
         }
@@ -921,7 +921,7 @@ class Response
         if (null === $etag) {
             $this->headers->remove('Etag');
         } else {
-            if (0 !== strpos($etag, '"')) {
+            if (!str_starts_with($etag, '"')) {
                 $etag = '"'.$etag.'"';
             }
 
@@ -1079,12 +1079,26 @@ class Response
         $lastModified = $this->headers->get('Last-Modified');
         $modifiedSince = $request->headers->get('If-Modified-Since');
 
-        if ($etags = $request->getETags()) {
-            $notModified = \in_array($this->getEtag(), $etags) || \in_array('*', $etags);
-        }
+        if (($ifNoneMatchEtags = $request->getETags()) && (null !== $etag = $this->getEtag())) {
+            if (0 == strncmp($etag, 'W/', 2)) {
+                $etag = substr($etag, 2);
+            }
 
-        if ($modifiedSince && $lastModified) {
-            $notModified = strtotime($modifiedSince) >= strtotime($lastModified) && (!$etags || $notModified);
+            // Use weak comparison as per https://tools.ietf.org/html/rfc7232#section-3.2.
+            foreach ($ifNoneMatchEtags as $ifNoneMatchEtag) {
+                if (0 == strncmp($ifNoneMatchEtag, 'W/', 2)) {
+                    $ifNoneMatchEtag = substr($ifNoneMatchEtag, 2);
+                }
+
+                if ($ifNoneMatchEtag === $etag || '*' === $ifNoneMatchEtag) {
+                    $notModified = true;
+                    break;
+                }
+            }
+        }
+        // Only do If-Modified-Since date comparison when If-None-Match is not present as per https://tools.ietf.org/html/rfc7232#section-3.3.
+        elseif ($modifiedSince && $lastModified) {
+            $notModified = strtotime($modifiedSince) >= strtotime($lastModified);
         }
 
         if ($notModified) {
@@ -1222,6 +1236,7 @@ class Response
         while ($level-- > $targetLevel && ($s = $status[$level]) && (!isset($s['del']) ? !isset($s['flags']) || ($s['flags'] & $flags) === $flags : $s['del'])) {
             if ($flush) {
                 ob_end_flush();
+                flush();
             } else {
                 ob_end_clean();
             }

@@ -54,18 +54,13 @@ class ImageStyleTest extends UnitTestCase {
       ->method('createInstance')
       ->with($image_effect_id)
       ->will($this->returnValue($image_effect));
-    $default_stubs = [
-      'getImageEffectPluginManager',
-      'fileUriScheme',
-      'fileUriTarget',
-      'fileDefaultScheme',
-    ];
+    $default_stubs = ['getImageEffectPluginManager', 'fileDefaultScheme'];
     $image_style = $this->getMockBuilder('\Drupal\image\Entity\ImageStyle')
       ->setConstructorArgs([
         ['effects' => [$image_effect_id => ['id' => $image_effect_id]]],
         $this->entityTypeId,
       ])
-      ->setMethods(array_merge($default_stubs, $stubs))
+      ->onlyMethods(array_merge($default_stubs, $stubs))
       ->getMock();
 
     $image_style->expects($this->any())
@@ -83,11 +78,11 @@ class ImageStyleTest extends UnitTestCase {
    */
   protected function setUp(): void {
     $this->entityTypeId = $this->randomMachineName();
-    $this->provider = $this->randomMachineName();
+    $provider = $this->randomMachineName();
     $this->entityType = $this->createMock('\Drupal\Core\Entity\EntityTypeInterface');
     $this->entityType->expects($this->any())
       ->method('getProvider')
-      ->will($this->returnValue($this->provider));
+      ->will($this->returnValue($provider));
     $this->entityTypeManager = $this->createMock('\Drupal\Core\Entity\EntityTypeManagerInterface');
     $this->entityTypeManager->expects($this->any())
       ->method('getDefinition')

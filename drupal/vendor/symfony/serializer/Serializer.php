@@ -153,11 +153,11 @@ class Serializer implements SerializerInterface, ContextAwareNormalizerInterface
             return $normalizer->normalize($data, $format, $context);
         }
 
-        if (null === $data || is_scalar($data)) {
+        if (null === $data || \is_scalar($data)) {
             return $data;
         }
 
-        if (\is_array($data) || $data instanceof \Traversable) {
+        if (is_iterable($data)) {
             if (($context[AbstractObjectNormalizer::PRESERVE_EMPTY_OBJECTS] ?? false) === true && $data instanceof \Countable && 0 === $data->count()) {
                 return $data;
             }

@@ -25,6 +25,21 @@ class NestedFormTest extends FieldTestBase {
    */
   protected $defaultTheme = 'stark';
 
+  /**
+   * @var array
+   */
+  protected $fieldStorageSingle;
+
+  /**
+   * @var array
+   */
+  protected $fieldStorageUnlimited;
+
+  /**
+   * @var array
+   */
+  protected $field;
+
   protected function setUp(): void {
     parent::setUp();
 
@@ -204,7 +219,7 @@ class NestedFormTest extends FieldTestBase {
     // Submit the form and check that the entities are updated accordingly.
     $assert_session->hiddenFieldExists('entity_2[changed]')
       ->setValue(REQUEST_TIME - 86400);
-    $page->pressButton(t('Save'));
+    $page->pressButton('Save');
 
     $elements = $this->cssSelect('.entity-2.error');
     $this->assertCount(1, $elements, 'The whole nested entity form has been correctly flagged with an error class.');
