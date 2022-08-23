@@ -809,6 +809,12 @@ if (!defined(MAINTENANCE_MODE) && file_exists('/opt/oe/patterns/drupal/elasticac
   $config['cdn.settings']['status'] = TRUE;
 }
 
+// trusted_host_patterns
+if (file_exists('/opt/oe/patterns/drupal/hostname.txt')) {
+  $hostname = trim(file_get_contents('/opt/oe/patterns/drupal/hostname.txt'));
+  $settings['trusted_host_patterns'] = ["^" . preg_quote($hostname) . "$"];
+}
+
 if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
   include $app_root . '/' . $site_path . '/settings.local.php';
 }
