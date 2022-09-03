@@ -380,7 +380,7 @@ class CommandInfo
      */
     public function setDescription($description)
     {
-        $this->description = str_replace("\n", ' ', $description);
+        $this->description = str_replace("\n", ' ', $description ?? '');
         return $this;
     }
 
@@ -708,7 +708,7 @@ class CommandInfo
         if ($this->lastParameterIsOptionsArray()) {
             array_pop($params);
         }
-        while (!empty($params) && ($params[0]->getType() != null) && !($params[0]->getType()->isBuiltin())) {
+        while (!empty($params) && ($params[0]->getType() != null) && ($params[0]->getType() instanceof \ReflectionNamedType) && !($params[0]->getType()->isBuiltin())) {
             $param = array_shift($params);
             $injectedClass = $param->getType()->getName();
             array_unshift($this->injectedClasses, $injectedClass);
@@ -729,7 +729,7 @@ class CommandInfo
     {
         // Commandline arguments must be strings, so ignore any
         // parameter that is typehinted to any non-primitive class.
-        if ($param->getType() && !$param->getType()->isBuiltin()) {
+        if ($param->getType() && (!$param->getType() instanceof \ReflectionNamedType || !$param->getType()->isBuiltin())) {
             return;
         }
         $result->add($param->name);
@@ -830,6 +830,15 @@ class CommandInfo
             // into this object, using our accessors.
             CommandDocBlockParserFactory::parse($this, $this->reflection);
             $this->docBlockIsParsed = true;
+            // Use method's return type if @return is not present.
+            if ($this->reflection->hasReturnType() && !$this->getReturnType()) {
+                $type = $this->reflection->getReturnType();
+                if ($type instanceof \ReflectionUnionType) {
+                    // Use first declared type.
+                    $type = current($type->getTypes());
+                }
+                $this->setReturnType($type->getName());
+            }
         }
     }
 

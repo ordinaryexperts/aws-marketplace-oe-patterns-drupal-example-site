@@ -15,6 +15,7 @@ use Composer\InstalledVersions;
 use Doctrine\Common\Persistence\Proxy as LegacyProxy;
 use Doctrine\Persistence\Proxy;
 use Mockery\MockInterface;
+use Phake\IMock;
 use PHPUnit\Framework\MockObject\Matcher\StatelessInvocation;
 use PHPUnit\Framework\MockObject\MockObject;
 use Prophecy\Prophecy\ProphecySubjectInterface;
@@ -69,6 +70,8 @@ class DebugClassLoader
         'self' => 'self',
         'parent' => 'parent',
         'mixed' => 'mixed',
+        'list' => 'array',
+        'class-string' => 'string',
     ] + (\PHP_VERSION_ID >= 80000 ? [
         'static' => 'static',
         '$this' => 'static',
@@ -310,6 +313,7 @@ class DebugClassLoader
                     && !is_subclass_of($symbols[$i], ProxyInterface::class)
                     && !is_subclass_of($symbols[$i], LegacyProxy::class)
                     && !is_subclass_of($symbols[$i], MockInterface::class)
+                    && !is_subclass_of($symbols[$i], IMock::class)
                 ) {
                     $loader->checkClass($symbols[$i]);
                 }
@@ -610,7 +614,7 @@ class DebugClassLoader
                 ;
             }
 
-            if (null !== ($returnType = self::$returnTypes[$class][$method->name] ?? self::MAGIC_METHODS[$method->name] ?? null) && !$method->hasReturnType() && !($doc && preg_match('/\n\s+\* @return +(\S+)/', $doc))) {
+            if (null !== ($returnType = self::$returnTypes[$class][$method->name] ?? self::MAGIC_METHODS[$method->name] ?? null) && !$method->hasReturnType() && !($doc && preg_match('/\n\s+\* @return +([^\s<(]+)/', $doc))) {
                 [$normalizedType, $returnType, $declaringClass, $declaringFile] = \is_string($returnType) ? [$returnType, $returnType, '', ''] : $returnType;
 
                 if ('void' === $normalizedType) {
@@ -638,7 +642,7 @@ class DebugClassLoader
 
             $matches = [];
 
-            if (!$method->hasReturnType() && ((false !== strpos($doc, '@return') && preg_match('/\n\s+\* @return +(\S+)/', $doc, $matches)) || 'void' !== (self::MAGIC_METHODS[$method->name] ?? 'void'))) {
+            if (!$method->hasReturnType() && ((false !== strpos($doc, '@return') && preg_match('/\n\s+\* @return +([^\s<(]+)/', $doc, $matches)) || 'void' !== (self::MAGIC_METHODS[$method->name] ?? 'void'))) {
                 $matches = $matches ?: [1 => self::MAGIC_METHODS[$method->name]];
                 $this->setReturnType($matches[1], $method, $parent);
 

@@ -75,6 +75,13 @@ class MemcacheBackend implements CacheBackendInterface {
   protected $timestampInvalidator;
 
   /**
+   * The DateTime Service.
+   *
+   * @var \Drupal\Component\Datetime\TimeInterface
+   */
+  protected $time;
+
+  /**
    * Constructs a MemcacheBackend object.
    *
    * @param string $bin
@@ -86,11 +93,12 @@ class MemcacheBackend implements CacheBackendInterface {
    * @param \Drupal\memcache\Invalidator\TimestampInvalidatorInterface $timestamp_invalidator
    *   The timestamp invalidation provider.
    */
-  public function __construct($bin, DrupalMemcacheInterface $memcache, CacheTagsChecksumInterface $checksum_provider, TimestampInvalidatorInterface $timestamp_invalidator) {
+  public function __construct($bin, DrupalMemcacheInterface $memcache, CacheTagsChecksumInterface $checksum_provider, TimestampInvalidatorInterface $timestamp_invalidator, $time_service = NULL) {
     $this->bin = $bin;
     $this->memcache = $memcache;
     $this->checksumProvider = $checksum_provider;
     $this->timestampInvalidator = $timestamp_invalidator;
+    $this->time = $time_service ?? \Drupal::time();
 
     $this->ensureBinDeletionTimeIsSet();
   }
@@ -133,6 +141,10 @@ class MemcacheBackend implements CacheBackendInterface {
     $fetched = [];
 
     foreach ($cache as $result) {
+      if (is_string($result)){
+        continue;
+      }
+
       if (!$this->timeIsGreaterThanBinDeletionTime($result->created)) {
         continue;
       }
@@ -180,11 +192,11 @@ class MemcacheBackend implements CacheBackendInterface {
     $cache->valid = TRUE;
 
     // Items that have expired are invalid.
-    if ($cache->expire != CacheBackendInterface::CACHE_PERMANENT && $cache->expire <= REQUEST_TIME) {
+    if ($cache->expire != CacheBackendInterface::CACHE_PERMANENT && $cache->expire <= $this->time->getRequestTime()) {
       $cache->valid = FALSE;
     }
 
-    // Check if invalidateTags() has been called with any of the items's tags.
+    // Check if invalidateTags() has been called with any of the items tags.
     if (!$this->checksumProvider->isValid($cache->checksum, $cache->tags)) {
       $cache->valid = FALSE;
     }
@@ -362,7 +374,7 @@ class MemcacheBackend implements CacheBackendInterface {
   public function invalidateMultiple(array $cids) {
     foreach ($cids as $cid) {
       if ($item = $this->get($cid)) {
-        $item->expire = REQUEST_TIME - 1;
+        $item->expire = $this->time->getRequestTime() - 1;
         $this->memcache->set($cid, $item);
       }
     }

@@ -117,7 +117,7 @@ abstract class ContentTranslationUITestBase extends ContentTranslationTestBase {
     // Assert that HTML is not escaped unexpectedly.
     if ($this->testHTMLEscapeForAllLanguages) {
       $this->assertSession()->responseNotContains('&lt;span class=&quot;translation-entity-all-languages&quot;&gt;(all languages)&lt;/span&gt;');
-      $this->assertRaw('<span class="translation-entity-all-languages">(all languages)</span>');
+      $this->assertSession()->responseContains('<span class="translation-entity-all-languages">(all languages)</span>');
     }
 
     // Ensure that the content language cache context is not yet added to the
@@ -228,7 +228,7 @@ abstract class ContentTranslationUITestBase extends ContentTranslationTestBase {
         $language = new Language(['id' => $langcode]);
         // Test that label is correctly shown for translation.
         $view_url = $entity->toUrl('canonical', ['language' => $language])->toString();
-        $this->assertSession()->elementTextEquals('xpath', "//table//a[@href='{$view_url}']", $entity->getTranslation($langcode)->label() ?? '');
+        $this->assertSession()->elementTextEquals('xpath', "//table//a[@href='{$view_url}']", $entity->getTranslation($langcode)->label() ?? $entity->getTranslation($langcode)->id());
         // Test that edit link is correct for translation.
         $edit_path = $entity->toUrl('edit-form', ['language' => $language])->toString();
         $this->assertSession()->elementTextEquals('xpath', "//table//ul[@class='dropbutton']/li/a[@href='{$edit_path}']", 'Edit');
@@ -359,7 +359,7 @@ abstract class ContentTranslationUITestBase extends ContentTranslationTestBase {
     ];
     $this->drupalGet($entity->toUrl('edit-form'));
     $this->submitForm($edit, $this->getFormSubmitAction($entity, $langcode));
-    $this->assertSession()->elementExists('xpath', '//div[contains(@class, "error")]//ul');
+    $this->assertSession()->statusMessageExists('error');
     $metadata = $this->manager->getTranslationMetadata($entity->getTranslation($langcode));
     $this->assertEquals($values[$langcode]['uid'], $metadata->getAuthor()->id(), 'Translation author correctly kept.');
     $this->assertEquals($values[$langcode]['created'], $metadata->getCreatedTime(), 'Translation date correctly kept.');
@@ -525,7 +525,7 @@ abstract class ContentTranslationUITestBase extends ContentTranslationTestBase {
         $url = $entity->toUrl('edit-form', $options);
         $this->drupalGet($url);
 
-        $this->assertRaw($entity->getTranslation($langcode)->label());
+        $this->assertSession()->responseContains($entity->getTranslation($langcode)->label());
       }
     }
   }

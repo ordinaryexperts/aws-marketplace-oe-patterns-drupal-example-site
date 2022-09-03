@@ -70,7 +70,7 @@ class ShortcutLinksTest extends ShortcutTestBase {
     // Test the add shortcut form UI. Test that the base field description is
     // there.
     $this->drupalGet('admin/config/user-interface/shortcut/manage/' . $set->id() . '/add-link');
-    $this->assertRaw('The location this shortcut points to.');
+    $this->assertSession()->pageTextContains('The location this shortcut points to.');
 
     // Check that each new shortcut links where it should.
     foreach ($test_cases as $test_path) {
@@ -219,14 +219,11 @@ class ShortcutLinksTest extends ShortcutTestBase {
     ])->save();
     // Test page with HTML tags in title.
     $this->drupalGet('admin/structure/block/block-content/manage/basic');
-    $page_title = new FormattableMarkup('Edit %label custom block type', ['%label' => 'Basic block']);
-    $this->assertRaw($page_title);
+    $page_title = "Edit Basic block custom block type";
+    $this->assertSession()->pageTextContains($page_title);
     // Add shortcut to this page.
     $this->clickLink('Add to Default shortcuts');
-    $this->assertRaw(new FormattableMarkup('Added a shortcut for %title.', [
-      '%title' => trim(strip_tags($page_title)),
-    ]));
-
+    $this->assertSession()->pageTextContains("Added a shortcut for {$page_title}.");
   }
 
   /**
@@ -465,20 +462,13 @@ class ShortcutLinksTest extends ShortcutTestBase {
    *   (optional) A message to display with the assertion. Do not translate
    *   messages: use new FormattableMarkup() to embed variables in the message text, not
    *   t(). If left blank, a default message will be displayed.
-   * @param string $group
-   *   (optional) The group this message is in, which is displayed in a column
-   *   in test output. Use 'Debug' to indicate this is debugging output. Do not
-   *   translate this string. Defaults to 'Other'; most tests do not override
-   *   this default.
    *
-   * @return bool
-   *   TRUE if the assertion succeeded.
+   * @internal
    */
-  protected function assertShortcutQuickLink($label, $index = 0, $message = '', $group = 'Other') {
+  protected function assertShortcutQuickLink(string $label, int $index = 0, string $message = ''): void {
     $links = $this->xpath('//a[normalize-space()=:label]', [':label' => $label]);
     $message = ($message ? $message : new FormattableMarkup('Shortcut quick link with label %label found.', ['%label' => $label]));
     $this->assertArrayHasKey($index, $links, $message);
-    return TRUE;
   }
 
 }

@@ -2,7 +2,6 @@
 
 namespace Drupal\Tests\user\Functional;
 
-use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Test\AssertMailTrait;
 use Drupal\Core\Url;
@@ -331,10 +330,9 @@ class UserPasswordResetTest extends BrowserTestBase {
     // Log in as a different user.
     $this->drupalLogin($this->account);
     $this->drupalGet($resetURL);
-    $this->assertRaw(new FormattableMarkup(
-      'Another user (%other_user) is already logged into the site on this computer, but you tried to use a one-time link for user %resetting_user. Please <a href=":logout">log out</a> and try using the link again.',
-      ['%other_user' => $this->account->getAccountName(), '%resetting_user' => $another_account->getAccountName(), ':logout' => Url::fromRoute('user.logout')->toString()]
-    ));
+    $this->assertSession()->pageTextContains("Another user ({$this->account->getAccountName()}) is already logged into the site on this computer, but you tried to use a one-time link for user {$another_account->getAccountName()}. Please log out and try using the link again.");
+    $this->assertSession()->linkExists('log out');
+    $this->assertSession()->linkByHrefExists(Url::fromRoute('user.logout')->toString());
 
     $another_account->delete();
     $this->drupalGet($resetURL);
@@ -488,11 +486,13 @@ class UserPasswordResetTest extends BrowserTestBase {
 
   /**
    * Helper function to make assertions about a valid password reset.
+   *
+   * @internal
    */
-  public function assertValidPasswordReset($name) {
+  public function assertValidPasswordReset(string $name): void {
     $this->assertSession()->pageTextContains("If $name is a valid account, an email will be sent with instructions to reset your password.");
     $this->assertMail('to', $this->account->getEmail(), 'Password e-mail sent to user.');
-    $subject = t('Replacement login information for @username at @site', ['@username' => $this->account->getAccountName(), '@site' => \Drupal::config('system.site')->get('name')]);
+    $subject = 'Replacement login information for ' . $this->account->getAccountName() . ' at Drupal';
     $this->assertMail('subject', $subject, 'Password reset e-mail subject is correct.');
   }
 
@@ -500,8 +500,11 @@ class UserPasswordResetTest extends BrowserTestBase {
    * Helper function to make assertions about an invalid password reset.
    *
    * @param string $name
+   *   The user name.
+   *
+   * @internal
    */
-  public function assertNoValidPasswordReset($name) {
+  public function assertNoValidPasswordReset(string $name): void {
     // This message is the same as the valid reset for privacy reasons.
     $this->assertSession()->pageTextContains("If $name is a valid account, an email will be sent with instructions to reset your password.");
     // The difference is that no email is sent.
@@ -510,15 +513,19 @@ class UserPasswordResetTest extends BrowserTestBase {
 
   /**
    * Makes assertions about a password reset triggering IP flood control.
+   *
+   * @internal
    */
-  public function assertPasswordIpFlood() {
+  public function assertPasswordIpFlood(): void {
     $this->assertSession()->pageTextContains('Too many password recovery requests from your IP address. It is temporarily blocked. Try again later or contact the site administrator.');
   }
 
   /**
    * Makes assertions about a password reset not triggering IP flood control.
+   *
+   * @internal
    */
-  public function assertNoPasswordIpFlood() {
+  public function assertNoPasswordIpFlood(): void {
     $this->assertSession()->pageTextNotContains('Too many password recovery requests from your IP address. It is temporarily blocked. Try again later or contact the site administrator.');
   }
 

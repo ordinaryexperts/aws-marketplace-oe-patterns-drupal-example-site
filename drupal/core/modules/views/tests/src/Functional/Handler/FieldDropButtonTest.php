@@ -34,8 +34,8 @@ class FieldDropButtonTest extends ViewTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp($import_test_views = TRUE): void {
-    parent::setUp($import_test_views);
+  protected function setUp($import_test_views = TRUE, $modules = ['views_test_config']): void {
+    parent::setUp($import_test_views, $modules);
 
     $admin_user = $this->drupalCreateUser([
       'access content overview',
@@ -65,11 +65,11 @@ class FieldDropButtonTest extends ViewTestBase {
 
     // Check if the dropbutton.js library is available.
     $this->drupalGet('admin/content');
-    $this->assertRaw('dropbutton.js');
+    $this->assertSession()->responseContains('dropbutton.js');
     // Check if the dropbutton.js library is available on a cached page to
     // ensure that bubbleable metadata is not lost in the views render workflow.
     $this->drupalGet('admin/content');
-    $this->assertRaw('dropbutton.js');
+    $this->assertSession()->responseContains('dropbutton.js');
   }
 
 }

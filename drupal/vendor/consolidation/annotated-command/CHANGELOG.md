@@ -1,5 +1,47 @@
 # Change Log
 
+### 4.5.6 - 22 June 2022
+
+- PHP 8.2 compatibility: dynamic properties are deprecated (#271)
+
+### 4.5.5 - 26 April 2022
+
+- No functional change; new release to fix false positives in b/c check caused by lockfile problem.
+
+### 4.5.4 - 5 April 2022
+
+- Allow psr/log ^3
+
+### 4.5.3 - 1 April 2022
+
+- Check the type of the reflection object before attempting to call isBuiltin(). (#265)
+
+### 4.5.2 - 20 February 2022
+
+- Do not pass null to Symfony Command methods (#262)
+- CommandResult inheritance (#260)
+
+### 4.5.1 - 29 December 2021
+
+- PHP 8.1
+
+### 4.5.0 - 27 December 2021
+
+- Symfony 6 / Symfony 5.2 compatibility
+- Make addUsageOrExample() public
+
+### 4.4.0 - 29 September 2021
+
+- Add support for providing command information via php8 Attributes. (#239)
+
+### 4.3.3 - 26 September 2021
+
+- Back out change from 4.3.2.  Will restore in 4.4.0, but with a switch that defaults to "off" (backwards-compatible).
+
+### 4.3.2 - 19 September 2021
+
+- Less parsing by ignoring Traits and IO.php (for Drush) (#237)
+
 ### 4.3.1 - 29 August 2021
 
 - Fix bc break in 4.3.0. (#232)
@@ -192,7 +234,7 @@ DEPRECATED RELEASE. Do not use.
 
 ### 2.1.0 - 14 November 2016
 
-- Add support for output formatter wordwrapping 
+- Add support for output formatter wordwrapping
 - Fix version requirement for output-formatters in composer.json
 - Use output-formatters ~3
 - Move php_codesniffer back to require-dev (moved to require by mistake)
