@@ -120,7 +120,7 @@
     color: #fff;
     border: solid 1px transparent;
     box-shadow: none;
-    font-family: serif;
+    font-family: "Lora", "georgia", serif;
     font-size: 2rem;
     -webkit-appearance: none
   }
@@ -401,6 +401,17 @@
 [dir="rtl"] .block-search-wide__button svg {
     margin-left: auto;
 }
+
+@media (forced-colors: active) {
+
+.block-search-wide__button {
+    background: ButtonFace
+}
+
+    .block-search-wide__button path {
+      fill: ButtonText;
+    }
+  }
 
 /* Provide rudimentary access to site search if JS is disabled. */
 

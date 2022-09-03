@@ -25,7 +25,7 @@ class BlockContentTypeTest extends BlockContentTestBase {
   /**
    * {@inheritdoc}
    */
-  protected $defaultTheme = 'classy';
+  protected $defaultTheme = 'stark';
 
   /**
    * Permissions to grant admin user.
@@ -123,7 +123,7 @@ class BlockContentTypeTest extends BlockContentTestBase {
 
     // Verify that title and body fields are displayed.
     $this->drupalGet('block/add/basic');
-    $this->assertRaw('Block description');
+    $this->assertSession()->pageTextContains('Block description');
     $this->assertNotEmpty($this->cssSelect('#edit-body-0-value'), 'Body field was found.');
 
     // Change the block type name.
@@ -143,7 +143,7 @@ class BlockContentTypeTest extends BlockContentTestBase {
     \Drupal::service('entity_field.manager')->clearCachedFieldDefinitions();
 
     $this->drupalGet('block/add');
-    $this->assertRaw('Bar');
+    $this->assertSession()->pageTextContains('Bar');
     $this->clickLink('Bar');
     // Verify that the original machine name was used in the URL.
     $this->assertSession()->addressEquals(Url::fromRoute('block_content.add_form', ['block_content_type' => 'basic']));
@@ -204,15 +204,16 @@ class BlockContentTypeTest extends BlockContentTestBase {
       ->getStorage('block_content');
 
     // Install all themes.
-    \Drupal::service('theme_installer')->install(['bartik', 'seven', 'stark']);
+    $themes = ['bartik', 'olivero', 'seven', 'stark'];
+    \Drupal::service('theme_installer')->install($themes);
     $theme_settings = $this->config('system.theme');
-    foreach (['bartik', 'seven', 'stark'] as $default_theme) {
+    foreach ($themes as $default_theme) {
       // Change the default theme.
       $theme_settings->set('default', $default_theme)->save();
       $this->drupalPlaceBlock('local_actions_block');
 
       // For each installed theme, go to its block page and test the redirects.
-      foreach (['bartik', 'seven', 'stark'] as $theme) {
+      foreach ($themes as $theme) {
         // Test that adding a block from the 'place blocks' form sends you to the
         // block configure form.
         $path = $theme == $default_theme ? 'admin/structure/block' : "admin/structure/block/list/$theme";

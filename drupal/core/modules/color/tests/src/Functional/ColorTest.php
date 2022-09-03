@@ -9,6 +9,7 @@ use Drupal\Tests\BrowserTestBase;
  * frontend.
  *
  * @group color
+ * @group legacy
  */
 class ColorTest extends BrowserTestBase {
 
@@ -121,9 +122,11 @@ class ColorTest extends BrowserTestBase {
 
     $this->drupalGet('<front>');
     $stylesheets = $this->config('color.theme.' . $theme)->get('stylesheets');
+    /** @var \Drupal\Core\File\FileUrlGeneratorInterface $file_url_generator */
+    $file_url_generator = \Drupal::service('file_url_generator');
     // Make sure the color stylesheet is included in the content.
     foreach ($stylesheets as $stylesheet) {
-      $this->assertSession()->responseMatches('|' . file_url_transform_relative(file_create_url($stylesheet)) . '|');
+      $this->assertSession()->responseMatches('|' . $file_url_generator->generateString($stylesheet) . '|');
       $stylesheet_content = implode("\n", file($stylesheet));
       $this->assertStringContainsString('color: #123456', $stylesheet_content, 'Make sure the color we changed is in the color stylesheet. (' . $theme . ')');
     }
@@ -215,7 +218,7 @@ class ColorTest extends BrowserTestBase {
     // Make sure the color logo is not being used.
     $this->assertSession()->responseNotContains('files/color/bartik-');
     // Make sure the original bartik logo exists.
-    $this->assertRaw('bartik/logo.svg');
+    $this->assertSession()->responseContains('bartik/logo.svg');
 
     // Log in and set the color scheme to 'slate'.
     $this->drupalLogin($this->bigUser);
@@ -227,7 +230,7 @@ class ColorTest extends BrowserTestBase {
     $this->drupalLogout();
     $this->drupalGet('');
     // Make sure the color logo is being used.
-    $this->assertRaw('files/color/bartik-');
+    $this->assertSession()->responseContains('files/color/bartik-');
     // Make sure the original bartik logo does not exist.
     $this->assertSession()->responseNotContains('bartik/logo.svg');
 
@@ -243,7 +246,7 @@ class ColorTest extends BrowserTestBase {
     // Make sure the color logo is not being used.
     $this->assertSession()->responseNotContains('files/color/bartik-');
     // Make sure the original bartik logo exists.
-    $this->assertRaw('bartik/logo.svg');
+    $this->assertSession()->responseContains('bartik/logo.svg');
   }
 
 }

@@ -4,7 +4,6 @@ namespace Drupal\Tests\user\Functional\Views;
 
 use Drupal\views\Views;
 use Drupal\Tests\views\Functional\ViewTestBase;
-use Drupal\views\Tests\ViewTestData;
 
 /**
  * Tests the handler of the user: name filter.
@@ -56,10 +55,8 @@ class HandlerFilterUserNameTest extends ViewTestBase {
     'uid' => 'uid',
   ];
 
-  protected function setUp($import_test_views = TRUE): void {
-    parent::setUp($import_test_views);
-
-    ViewTestData::createTestViews(static::class, ['user_test_views']);
+  protected function setUp($import_test_views = TRUE, $modules = ['user_test_views']): void {
+    parent::setUp($import_test_views, $modules);
 
     $this->enableViewsTestModule();
 
@@ -155,7 +152,7 @@ class HandlerFilterUserNameTest extends ViewTestBase {
     $this->drupalGet($path, $options);
     // The actual result should contain all of the user ids.
     foreach ($this->accounts as $account) {
-      $this->assertRaw($account->id());
+      $this->assertSession()->pageTextContains($account->id());
     }
 
     // Pass in an invalid username and a valid username.
@@ -175,7 +172,7 @@ class HandlerFilterUserNameTest extends ViewTestBase {
     $this->assertSession()->pageTextNotContains('Unable to find user');
     // The actual result should contain all of the user ids.
     foreach ($this->accounts as $account) {
-      $this->assertRaw($account->id());
+      $this->assertSession()->pageTextContains($account->id());
     }
 
     // Pass in just valid user IDs in the entity_autocomplete target_id format.
@@ -187,7 +184,7 @@ class HandlerFilterUserNameTest extends ViewTestBase {
     $this->assertSession()->pageTextNotContains('Unable to find user');
     // The actual result should contain all of the user ids.
     foreach ($this->accounts as $account) {
-      $this->assertRaw($account->id());
+      $this->assertSession()->pageTextContains($account->id());
     }
   }
 

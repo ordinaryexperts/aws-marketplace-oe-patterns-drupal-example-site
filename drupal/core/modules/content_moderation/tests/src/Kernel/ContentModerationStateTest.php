@@ -57,6 +57,20 @@ class ContentModerationStateTest extends KernelTestBase {
   protected $entityTypeManager;
 
   /**
+   * The state object.
+   *
+   * @var \Drupal\Core\State\StateInterface
+   */
+  protected $state;
+
+  /**
+   * The entity definition update manager.
+   *
+   * @var \Drupal\Core\Entity\EntityDefinitionUpdateManagerInterface
+   */
+  protected $entityDefinitionUpdateManager;
+
+  /**
    * The ID of the revisionable entity type used in the tests.
    *
    * @var string
@@ -777,8 +791,10 @@ class ContentModerationStateTest extends KernelTestBase {
    * @param bool|null $published
    *   (optional) Whether to check if the entity is published or not. Defaults
    *   to TRUE.
+   *
+   * @internal
    */
-  protected function assertDefaultRevision(EntityInterface $entity, $revision_id, $published = TRUE) {
+  protected function assertDefaultRevision(EntityInterface $entity, int $revision_id, $published = TRUE): void {
     // Get the default revision.
     $entity = $this->reloadEntity($entity);
     $this->assertEquals($revision_id, $entity->getRevisionId());

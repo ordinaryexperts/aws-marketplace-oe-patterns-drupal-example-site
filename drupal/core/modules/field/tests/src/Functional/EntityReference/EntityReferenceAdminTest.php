@@ -156,8 +156,8 @@ class EntityReferenceAdminTest extends BrowserTestBase {
     $this->assertStringContainsString("/entity_reference_autocomplete/node/views/", $field->getAttribute('data-autocomplete-path'));
     $target_url = $this->getAbsoluteUrl($field->getAttribute('data-autocomplete-path'));
     $this->drupalGet($target_url, ['query' => ['q' => 'Foo']]);
-    $this->assertRaw($node1->getTitle() . ' (' . $node1->id() . ')');
-    $this->assertRaw($node2->getTitle() . ' (' . $node2->id() . ')');
+    $this->assertSession()->pageTextContains($node1->getTitle() . ' (' . $node1->id() . ')');
+    $this->assertSession()->pageTextContains($node2->getTitle() . ' (' . $node2->id() . ')');
 
     // Try to add a new node, fill the entity reference field and submit the
     // form.
@@ -398,8 +398,10 @@ class EntityReferenceAdminTest extends BrowserTestBase {
    *   The field name.
    * @param array $expected_options
    *   An array of expected options.
+   *
+   * @internal
    */
-  protected function assertFieldSelectOptions($name, array $expected_options) {
+  protected function assertFieldSelectOptions(string $name, array $expected_options): void {
     $options = $this->assertSession()->selectExists($name)->findAll('xpath', 'option');
     array_walk($options, function (NodeElement &$option) {
       $option = $option->getValue();

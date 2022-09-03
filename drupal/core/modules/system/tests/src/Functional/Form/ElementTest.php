@@ -52,10 +52,10 @@ class ElementTest extends BrowserTestBase {
     }
 
     // Verify that the choices are admin filtered as expected.
-    $this->assertRaw("<em>Special Char</em>alert('checkboxes');");
-    $this->assertRaw("<em>Special Char</em>alert('radios');");
-    $this->assertRaw('<em>Bar - checkboxes</em>');
-    $this->assertRaw('<em>Bar - radios</em>');
+    $this->assertSession()->responseContains("<em>Special Char</em>alert('checkboxes');");
+    $this->assertSession()->responseContains("<em>Special Char</em>alert('radios');");
+    $this->assertSession()->responseContains('<em>Bar - checkboxes</em>');
+    $this->assertSession()->responseContains('<em>Bar - radios</em>');
 
     // Enable customized option sub-elements.
     $this->drupalGet('form-test/checkboxes-radios/customize');
@@ -144,6 +144,7 @@ class ElementTest extends BrowserTestBase {
     $this->assertSession()->elementsCount('xpath', '//div[@id="edit-container"]//div[@class="details-wrapper"]//label', 1);
     $this->drupalGet('form-test/group-fieldset');
     $this->assertSession()->elementsCount('xpath', '//fieldset[@id="edit-fieldset"]//div[@id="edit-meta"]//label', 1);
+    $this->assertSession()->elementTextEquals('xpath', '//fieldset[@id="edit-fieldset-zero"]//legend', '0');
     $this->drupalGet('form-test/group-vertical-tabs');
     $this->assertSession()->elementsCount('xpath', '//div[@data-vertical-tabs-panes]//details[@id="edit-meta"]//label', 1);
     $this->assertSession()->elementsCount('xpath', '//div[@data-vertical-tabs-panes]//details[@id="edit-meta-2"]//label', 1);
@@ -178,7 +179,7 @@ class ElementTest extends BrowserTestBase {
     $this->drupalGet('form-test/autocomplete');
 
     // Make sure that the autocomplete library is added.
-    $this->assertRaw('core/misc/autocomplete.js');
+    $this->assertSession()->responseContains('core/misc/autocomplete.js');
 
     // Ensure that the user does have access to the autocompletion.
     $this->assertSession()->elementExists('xpath', '//input[@id="edit-autocomplete-1" and contains(@data-autocomplete-path, "form-test/autocomplete-1")]');

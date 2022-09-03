@@ -31,13 +31,6 @@ class FilterHtmlImageSecureTest extends BrowserTestBase {
    */
   protected $defaultTheme = 'stark';
 
-  /**
-   * An authenticated user.
-   *
-   * @var \Drupal\user\UserInterface
-   */
-  protected $webUser;
-
   protected function setUp(): void {
     parent::setUp();
 
@@ -63,20 +56,19 @@ class FilterHtmlImageSecureTest extends BrowserTestBase {
     $filtered_html_format->save();
 
     // Setup users.
-    $this->webUser = $this->drupalCreateUser([
+    $webUser = $this->drupalCreateUser([
       'access content',
       'access comments',
       'post comments',
       'skip comment approval',
       $filtered_html_format->getPermissionName(),
     ]);
-    $this->drupalLogin($this->webUser);
+    $this->drupalLogin($webUser);
 
     // Setup a node to comment and test on.
     $this->drupalCreateContentType(['type' => 'page', 'name' => 'Basic page']);
     // Add a comment field.
     $this->addDefaultCommentField('node', 'page');
-    $this->node = $this->drupalCreateNode();
   }
 
   /**
@@ -84,6 +76,8 @@ class FilterHtmlImageSecureTest extends BrowserTestBase {
    */
   public function testImageSource() {
     global $base_url;
+
+    $node = $this->drupalCreateNode();
 
     $public_files_path = PublicStream::basePath();
 
@@ -94,14 +88,13 @@ class FilterHtmlImageSecureTest extends BrowserTestBase {
 
     $druplicon = 'core/misc/druplicon.png';
     $red_x_image = base_path() . 'core/misc/icons/e32700/error.svg';
-    $alt_text = t('Image removed.');
-    $title_text = t('This image has been removed. For security reasons, only images from the local domain are allowed.');
 
     // Put a test image in the files directory.
     $test_images = $this->getTestFiles('image');
     $test_image = $test_images[0]->filename;
 
     // Put a test image in the files directory with special filename.
+    // cspell:ignore tést fïle nàme
     $special_filename = 'tést fïle nàme.png';
     $special_image = rawurlencode($special_filename);
     $special_uri = str_replace($test_images[0]->filename, $special_filename, $test_images[0]->uri);
@@ -143,7 +136,7 @@ class FilterHtmlImageSecureTest extends BrowserTestBase {
     $edit = [
       'comment_body[0][value]' => implode("\n", $comment),
     ];
-    $this->drupalGet('node/' . $this->node->id());
+    $this->drupalGet('node/' . $node->id());
     $this->submitForm($edit, 'Save');
     foreach ($images as $image => $converted) {
       $found = FALSE;
@@ -151,8 +144,8 @@ class FilterHtmlImageSecureTest extends BrowserTestBase {
         $found = TRUE;
         if ($converted == $red_x_image) {
           $this->assertEquals($red_x_image, $element->getAttribute('src'));
-          $this->assertEquals($alt_text, $element->getAttribute('alt'));
-          $this->assertEquals($title_text, $element->getAttribute('title'));
+          $this->assertEquals('Image removed.', $element->getAttribute('alt'));
+          $this->assertEquals('This image has been removed. For security reasons, only images from the local domain are allowed.', $element->getAttribute('title'));
           $this->assertEquals('16', $element->getAttribute('height'));
           $this->assertEquals('16', $element->getAttribute('width'));
         }

@@ -97,7 +97,7 @@ class DateTimeNormalizer implements NormalizerInterface, DenormalizerInterface, 
         $dateTimeFormat = $context[self::FORMAT_KEY] ?? null;
         $timezone = $this->getTimezone($context);
 
-        if ('' === $data || null === $data) {
+        if (null === $data || (\is_string($data) && '' === trim($data))) {
             throw new NotNormalizableValueException('The data is either an empty string or null, you should pass a string that can be parsed with the passed format or a valid DateTime string.');
         }
 
@@ -111,6 +111,16 @@ class DateTimeNormalizer implements NormalizerInterface, DenormalizerInterface, 
             $dateTimeErrors = \DateTime::class === $type ? \DateTime::getLastErrors() : \DateTimeImmutable::getLastErrors();
 
             throw new NotNormalizableValueException(sprintf('Parsing datetime string "%s" using format "%s" resulted in %d errors: ', $data, $dateTimeFormat, $dateTimeErrors['error_count'])."\n".implode("\n", $this->formatDateTimeErrors($dateTimeErrors['errors'])));
+        }
+
+        $defaultDateTimeFormat = $this->defaultContext[self::FORMAT_KEY] ?? null;
+
+        if (null !== $defaultDateTimeFormat) {
+            $object = \DateTime::class === $type ? \DateTime::createFromFormat($defaultDateTimeFormat, $data, $timezone) : \DateTimeImmutable::createFromFormat($defaultDateTimeFormat, $data, $timezone);
+
+            if (false !== $object) {
+                return $object;
+            }
         }
 
         try {

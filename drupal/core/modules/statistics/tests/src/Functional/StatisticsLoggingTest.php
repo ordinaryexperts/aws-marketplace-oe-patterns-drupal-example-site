@@ -49,6 +49,13 @@ class StatisticsLoggingTest extends BrowserTestBase {
    */
   protected $client;
 
+  /**
+   * A test node.
+   *
+   * @var \Drupal\node\Entity\Node
+   */
+  protected $node;
+
   protected function setUp(): void {
     parent::setUp();
 
@@ -99,7 +106,7 @@ class StatisticsLoggingTest extends BrowserTestBase {
    */
   public function testLogging() {
     $path = 'node/' . $this->node->id();
-    $module_path = drupal_get_path('module', 'statistics');
+    $module_path = $this->getModulePath('statistics');
     $stats_path = base_path() . $module_path . '/statistics.php';
     $lib_path = base_path() . $module_path . '/statistics.js';
     $expected_library = '/<script src=".*?' . preg_quote($lib_path, '/.') . '.*?">/is';

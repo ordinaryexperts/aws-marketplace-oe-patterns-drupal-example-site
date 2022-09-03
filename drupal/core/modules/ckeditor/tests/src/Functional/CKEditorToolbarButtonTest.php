@@ -27,6 +27,13 @@ class CKEditorToolbarButtonTest extends BrowserTestBase {
   protected $defaultTheme = 'stark';
 
   /**
+   * The admin user.
+   *
+   * @var \Drupal\user\Entity\User
+   */
+  protected $adminUser;
+
+  /**
    * {@inheritdoc}
    */
   protected function setUp(): void {
@@ -45,7 +52,7 @@ class CKEditorToolbarButtonTest extends BrowserTestBase {
     ])->save();
 
     // Create a new user with admin rights.
-    $this->admin_user = $this->drupalCreateUser([
+    $this->adminUser = $this->drupalCreateUser([
       'administer languages',
       'access administration pages',
       'administer site configuration',
@@ -57,7 +64,7 @@ class CKEditorToolbarButtonTest extends BrowserTestBase {
    * Method tests CKEditor image buttons.
    */
   public function testImageButtonDisplay() {
-    $this->drupalLogin($this->admin_user);
+    $this->drupalLogin($this->adminUser);
 
     // Install the Arabic language (which is RTL) and configure as the default.
     $edit = [];
@@ -76,8 +83,10 @@ class CKEditorToolbarButtonTest extends BrowserTestBase {
     $json_encode = function ($html) {
       return trim(Json::encode($html), '"');
     };
-    $markup = $json_encode(file_url_transform_relative(file_create_url('core/modules/ckeditor/js/plugins/drupalimage/icons/drupalimage.png')));
-    $this->assertRaw($markup);
+    /** @var \Drupal\Core\File\FileUrlGeneratorInterface $file_url_generator */
+    $file_url_generator = \Drupal::service('file_url_generator');
+    $markup = $json_encode($file_url_generator->generateString('core/modules/ckeditor/js/plugins/drupalimage/icons/drupalimage.png'));
+    $this->assertSession()->responseContains($markup);
   }
 
 }

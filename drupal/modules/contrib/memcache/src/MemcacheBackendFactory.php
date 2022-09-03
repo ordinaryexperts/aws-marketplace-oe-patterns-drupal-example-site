@@ -2,6 +2,7 @@
 
 namespace Drupal\memcache;
 
+use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Cache\CacheFactoryInterface;
 use Drupal\Core\Cache\CacheTagsChecksumInterface;
 use Drupal\memcache\Driver\MemcacheDriverFactory;
@@ -34,6 +35,13 @@ class MemcacheBackendFactory implements CacheFactoryInterface {
   protected $timestampInvalidator;
 
   /**
+   * Drupal DateTime Service.
+   *
+   * @var \Drupal\Component\Datetime\TimeInterface
+   */
+  protected $time;
+
+  /**
    * Constructs the MemcacheBackendFactory object.
    *
    * @param \Drupal\memcache\Driver\MemcacheDriverFactory $memcache_factory
@@ -43,10 +51,11 @@ class MemcacheBackendFactory implements CacheFactoryInterface {
    * @param \Drupal\memcache\Invalidator\TimestampInvalidatorInterface $timestamp_invalidator
    *   The timestamp invalidation provider.
    */
-  public function __construct(MemcacheDriverFactory $memcache_factory, CacheTagsChecksumInterface $checksum_provider, TimestampInvalidatorInterface $timestamp_invalidator) {
+  public function __construct(MemcacheDriverFactory $memcache_factory, CacheTagsChecksumInterface $checksum_provider, TimestampInvalidatorInterface $timestamp_invalidator, TimeInterface $time_service) {
     $this->memcacheFactory = $memcache_factory;
     $this->checksumProvider = $checksum_provider;
     $this->timestampInvalidator = $timestamp_invalidator;
+    $this->time = $time_service;
   }
 
   /**
@@ -63,7 +72,8 @@ class MemcacheBackendFactory implements CacheFactoryInterface {
       $bin,
       $this->memcacheFactory->get($bin),
       $this->checksumProvider,
-      $this->timestampInvalidator
+      $this->timestampInvalidator,
+      $this->time
     );
   }
 

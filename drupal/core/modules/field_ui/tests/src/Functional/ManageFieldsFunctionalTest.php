@@ -85,6 +85,7 @@ class ManageFieldsFunctionalTest extends BrowserTestBase {
     $admin_user = $this->drupalCreateUser([
       'access content',
       'administer content types',
+      'bypass node access',
       'administer node fields',
       'administer node form display',
       'administer node display',
@@ -165,15 +166,10 @@ class ManageFieldsFunctionalTest extends BrowserTestBase {
     $type = empty($type) ? $this->contentType : $type;
     $this->drupalGet('admin/structure/types/manage/' . $type . '/fields');
     // Check all table columns.
-    $table_headers = [
-      t('Label'),
-      t('Machine name'),
-      t('Field type'),
-      t('Operations'),
-    ];
+    $table_headers = ['Label', 'Machine name', 'Field type', 'Operations'];
     foreach ($table_headers as $table_header) {
       // We check that the label appear in the table headings.
-      $this->assertRaw($table_header . '</th>');
+      $this->assertSession()->responseContains($table_header . '</th>');
     }
 
     // Test the "Add field" action link.
@@ -443,16 +439,18 @@ class ManageFieldsFunctionalTest extends BrowserTestBase {
   /**
    * Asserts field settings are as expected.
    *
-   * @param $bundle
+   * @param string $bundle
    *   The bundle name for the field.
-   * @param $field_name
+   * @param string $field_name
    *   The field name for the field.
-   * @param $string
+   * @param string $string
    *   The settings text.
-   * @param $entity_type
+   * @param string $entity_type
    *   The entity type for the field.
+   *
+   * @internal
    */
-  public function assertFieldSettings($bundle, $field_name, $string = 'dummy test string', $entity_type = 'node') {
+  public function assertFieldSettings(string $bundle, string $field_name, string $string = 'dummy test string', string $entity_type = 'node'): void {
     // Assert field storage settings.
     $field_storage = FieldStorageConfig::loadByName($entity_type, $field_name);
     $this->assertSame($string, $field_storage->getSetting('test_field_storage_setting'), 'Field storage settings were found.');
@@ -687,7 +685,7 @@ class ManageFieldsFunctionalTest extends BrowserTestBase {
       'field_name' => $field_name,
       'bundle' => $this->contentType,
       'entity_type' => 'node',
-      'label' => t('Hidden field'),
+      'label' => 'Hidden field',
     ];
     FieldConfig::create($field)->save();
     \Drupal::service('entity_display.repository')
@@ -750,7 +748,7 @@ class ManageFieldsFunctionalTest extends BrowserTestBase {
     // The external redirect should not fire.
     $this->assertSession()->addressEquals('admin/structure/types/manage/article/fields/node.article.body/storage?destinations%5B0%5D=http%3A//example.com');
     $this->assertSession()->statusCodeEquals(200);
-    $this->assertRaw('Attempt to update field <em class="placeholder">Body</em> failed: <em class="placeholder">The internal path component &#039;http://example.com&#039; is external. You are not allowed to specify an external URL together with internal:/.</em>.');
+    $this->assertSession()->responseContains('Attempt to update field <em class="placeholder">Body</em> failed: <em class="placeholder">The internal path component &#039;http://example.com&#039; is external. You are not allowed to specify an external URL together with internal:/.</em>.');
   }
 
   /**
@@ -812,8 +810,8 @@ class ManageFieldsFunctionalTest extends BrowserTestBase {
     $this->submitForm($edit, 'Save settings');
 
     $this->drupalGet('node/add/article');
-    $this->assertRaw('<strong>Test with an upload field.</strong>');
-    $this->assertRaw('<em>Test with a non upload field.</em>');
+    $this->assertSession()->responseContains('<strong>Test with an upload field.</strong>');
+    $this->assertSession()->responseContains('<em>Test with a non upload field.</em>');
   }
 
   /**

@@ -9,6 +9,7 @@ namespace Drupal\Tests\views_ui\Unit;
 
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Menu\MenuParentFormSelector;
 use Drupal\Tests\UnitTestCase;
 use Drupal\views\Entity\View;
 use Drupal\views\ViewExecutableFactory;
@@ -76,15 +77,16 @@ class ViewListBuilderTest extends UnitTestCase {
       ]);
 
     $default_display = $this->getMockBuilder('Drupal\views\Plugin\views\display\DefaultDisplay')
-      ->setMethods(['initDisplay'])
+      ->onlyMethods(['initDisplay'])
       ->setConstructorArgs([[], 'default', $display_manager->getDefinition('default')])
       ->getMock();
     $route_provider = $this->createMock('Drupal\Core\Routing\RouteProviderInterface');
     $state = $this->createMock('\Drupal\Core\State\StateInterface');
     $menu_storage = $this->createMock('\Drupal\Core\Entity\EntityStorageInterface');
+    $parent_form_selector = $this->createMock(MenuParentFormSelector::class);
     $page_display = $this->getMockBuilder('Drupal\views\Plugin\views\display\Page')
-      ->setMethods(['initDisplay', 'getPath'])
-      ->setConstructorArgs([[], 'default', $display_manager->getDefinition('page'), $route_provider, $state, $menu_storage])
+      ->onlyMethods(['initDisplay', 'getPath'])
+      ->setConstructorArgs([[], 'default', $display_manager->getDefinition('page'), $route_provider, $state, $menu_storage, $parent_form_selector])
       ->getMock();
     $page_display->expects($this->any())
       ->method('getPath')
@@ -94,7 +96,7 @@ class ViewListBuilderTest extends UnitTestCase {
         $this->returnValue('<script>alert("placeholder_page/%")</script>')));
 
     $embed_display = $this->getMockBuilder('Drupal\views\Plugin\views\display\Embed')
-      ->setMethods(['initDisplay'])
+      ->onlyMethods(['initDisplay'])
       ->setConstructorArgs([[], 'default', $display_manager->getDefinition('embed')])
       ->getMock();
 

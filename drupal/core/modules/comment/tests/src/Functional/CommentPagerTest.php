@@ -16,7 +16,7 @@ class CommentPagerTest extends CommentTestBase {
   /**
    * {@inheritdoc}
    */
-  protected $defaultTheme = 'classy';
+  protected $defaultTheme = 'stark';
 
   /**
    * Confirms comment paging works correctly with flat and threaded comments.
@@ -210,8 +210,10 @@ class CommentPagerTest extends CommentTestBase {
    *   An array of comments, must be of the type CommentInterface.
    * @param array $expected_order
    *   An array of keys from $comments describing the expected order.
+   *
+   * @internal
    */
-  public function assertCommentOrder(array $comments, array $expected_order) {
+  public function assertCommentOrder(array $comments, array $expected_order): void {
     $expected_cids = [];
 
     // First, rekey the expected order by cid.
@@ -370,11 +372,8 @@ class CommentPagerTest extends CommentTestBase {
       // Set comments to one per page so that we are able to test paging without
       // needing to insert large numbers of comments.
       $this->setCommentsPerPage(1, $field_name);
-      for ($i = 0; $i < 3; $i++) {
-        $comment = t('Comment @count on field @field', [
-          '@count' => $i + 1,
-          '@field' => $field_name,
-        ]);
+      for ($i = 1; $i <= 4; $i++) {
+        $comment = "Comment $i on field $field_name";
         $comments[] = $this->postComment($node, $comment, $comment, TRUE, $field_name);
       }
     }
@@ -383,25 +382,25 @@ class CommentPagerTest extends CommentTestBase {
     // shown.
     $this->drupalGet('node/' . $node->id());
     $this->assertSession()->pageTextContains('next');
-    $this->assertRaw('Comment 1 on field comment');
-    $this->assertRaw('Comment 1 on field comment_2');
+    $this->assertSession()->pageTextContains('Comment 1 on field comment');
+    $this->assertSession()->pageTextContains('Comment 1 on field comment_2');
     // Navigate to next page of field 1.
     $this->clickLinkWithXPath('//h3/a[normalize-space(text())=:label]/ancestor::section[1]//a[@rel="next"]', [':label' => 'Comment 1 on field comment']);
     // Check only one pager updated.
-    $this->assertRaw('Comment 2 on field comment');
-    $this->assertRaw('Comment 1 on field comment_2');
+    $this->assertSession()->pageTextContains('Comment 2 on field comment');
+    $this->assertSession()->pageTextContains('Comment 1 on field comment_2');
     // Return to page 1.
     $this->drupalGet('node/' . $node->id());
     // Navigate to next page of field 2.
     $this->clickLinkWithXPath('//h3/a[normalize-space(text())=:label]/ancestor::section[1]//a[@rel="next"]', [':label' => 'Comment 1 on field comment_2']);
     // Check only one pager updated.
-    $this->assertRaw('Comment 1 on field comment');
-    $this->assertRaw('Comment 2 on field comment_2');
+    $this->assertSession()->pageTextContains('Comment 1 on field comment');
+    $this->assertSession()->pageTextContains('Comment 2 on field comment_2');
     // Navigate to next page of field 1.
     $this->clickLinkWithXPath('//h3/a[normalize-space(text())=:label]/ancestor::section[1]//a[@rel="next"]', [':label' => 'Comment 1 on field comment']);
     // Check only one pager updated.
-    $this->assertRaw('Comment 2 on field comment');
-    $this->assertRaw('Comment 2 on field comment_2');
+    $this->assertSession()->pageTextContains('Comment 2 on field comment');
+    $this->assertSession()->pageTextContains('Comment 2 on field comment_2');
   }
 
   /**

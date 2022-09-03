@@ -32,8 +32,8 @@ class FilterUITest extends UITestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp($import_test_views = TRUE): void {
-    parent::setUp($import_test_views);
+  protected function setUp($import_test_views = TRUE, $modules = ['views_test_config']): void {
+    parent::setUp($import_test_views, $modules);
     $this->drupalCreateContentType(['type' => 'page']);
   }
 
@@ -90,7 +90,7 @@ class FilterUITest extends UITestBase {
     $this->submitForm([], 'Remove group 3');
 
     // Verify that the group 4 is now named as 3.
-    $this->assertRaw('<span>Group 3</span>');
+    $this->assertSession()->responseContains('<span>Group 3</span>');
 
     // Remove the group 3 again.
     $this->submitForm([], 'Remove group 3');

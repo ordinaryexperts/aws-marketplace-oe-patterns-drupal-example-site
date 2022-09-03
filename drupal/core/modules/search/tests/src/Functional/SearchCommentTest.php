@@ -147,7 +147,7 @@ class SearchCommentTest extends BrowserTestBase {
     // Post a comment with a keyword inside an evil script tag in the comment
     // body. Use the 'FULL HTML' text format so the script tag is stored.
     $edit_comment3 = [];
-    $edit_comment3['subject[0][value]'] = 'asubject';
+    $edit_comment3['subject[0][value]'] = 'a subject';
     $edit_comment3['comment_body[0][value]'] = "<script>alert('insidekeyword');</script>";
     $edit_comment3['comment_body[0][format]'] = $full_html_format_id;
     $this->drupalGet('comment/reply/node/' . $node->id() . '/comment');
@@ -189,7 +189,7 @@ class SearchCommentTest extends BrowserTestBase {
     $this->submitForm($edit, 'Search');
 
     // Verify the evil comment subject is escaped in search results.
-    $this->assertRaw('&lt;script&gt;alert(&#039;<strong>subjectkeyword</strong>&#039;);');
+    $this->assertSession()->responseContains('&lt;script&gt;alert(&#039;<strong>subjectkeyword</strong>&#039;);');
     $this->assertSession()->responseNotContains('<script>');
 
     // Search for the keyword near the evil script tag in the comment body.
@@ -201,7 +201,7 @@ class SearchCommentTest extends BrowserTestBase {
 
     // Verify that nearby script tag in the evil comment body is stripped from
     // search results.
-    $this->assertRaw('<strong>nearbykeyword</strong>');
+    $this->assertSession()->responseContains('<strong>nearbykeyword</strong>');
     $this->assertSession()->responseNotContains('<script>');
 
     // Search for contents inside the evil script tag in the comment body.
@@ -307,8 +307,10 @@ class SearchCommentTest extends BrowserTestBase {
 
   /**
    * Update search index and search for comment.
+   *
+   * @internal
    */
-  public function assertCommentAccess($assume_access, $message) {
+  public function assertCommentAccess(bool $assume_access, string $message): void {
     // Invoke search index update.
     \Drupal::service('search.index')->markForReindex('node_search', $this->node->id());
     $this->cronRun();
@@ -326,7 +328,7 @@ class SearchCommentTest extends BrowserTestBase {
         $this->assertSession()->pageTextContains($this->commentSubject);
       }
       else {
-        $this->assertSession()->pageTextContains(t('Your search yielded no results.'));
+        $this->assertSession()->pageTextContains('Your search yielded no results.');
       }
     }
     catch (ResponseTextException $exception) {

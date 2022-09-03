@@ -35,8 +35,8 @@ class StyleSummaryTest extends ViewTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp($import_test_views = TRUE): void {
-    parent::setUp($import_test_views);
+  protected function setUp($import_test_views = TRUE, $modules = ['views_test_config']): void {
+    parent::setUp($import_test_views, $modules);
 
     // Create 5 entities per bundle, to allow a summary overview per bundle.
     for ($i = 0; $i < 5; $i++) {
@@ -60,7 +60,7 @@ class StyleSummaryTest extends ViewTestBase {
     $this->drupalGet('test-summary');
 
     // Ensure styles are properly added for summary views.
-    $this->assertRaw('stable/css/views/views.module.css');
+    $this->assertSession()->responseContains('stable/css/views/views.module.css');
 
     $summary_list = $this->cssSelect('ul.views-summary li');
     $this->assertCount(4, $summary_list);
